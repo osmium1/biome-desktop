@@ -1,5 +1,6 @@
 import pystray
 import tkinter as tk 
+import tkinter.messagebox
 from PIL import Image
 from pystray import MenuItem as item
 from CustomFont import RenderFont, render_text
@@ -11,9 +12,6 @@ settings_dialog_open = False
 
 # creating a RenderFont object with the font file and the color of the text
 customfont1 = RenderFont(filename='fonts\Joystix Monospace.ttf', fill=(0, 0, 0))
-
-def on_activate():
-    print('Tray icon activated')
 
 def on_exit():
     # check if settings dialog is open 
@@ -28,8 +26,10 @@ def on_exit():
 
 def on_settings():
     open_settings_dialog()
+    
 
-def open_settings_dialog():
+def open_settings_dialog():    
+    global settings_dialog_open
     settings_dialog_open = True
 
     # create the dialog window 
@@ -46,14 +46,14 @@ def open_settings_dialog():
     
     # set the dialog open flag to false when user closes the dialog window
     def on_closing():
+        global settings_dialog_open
         settings_dialog_open = False
         dialog.destroy()
 
     dialog.protocol("WM_DELETE_WINDOW", on_closing)
     dialog.mainloop()
 
-menu = (
-    item('Activate', on_activate),  
+menu = (  
     item('Settings', on_settings),
     item('Exit', on_exit)
     )
