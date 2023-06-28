@@ -7,5 +7,6 @@ A helper for Biome, to let you quickly transfer forest links from your pc to mob
 ### Features implemented so far
 - Basic taskbar icon and menu
 - Basic program flow via dialog boxes
+- custom font renderer for UI
 
 Currently working on : better window-close functions
