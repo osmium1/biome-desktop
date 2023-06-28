@@ -6,12 +6,14 @@ from pystray import MenuItem as item
 from CustomFont import RenderFont, render_text
 import sys
 
+
 # creating a flag to know if the config dialog is open or not
 global config_dialog_open
 config_dialog_open = False
 
 # creating a RenderFont object with the font file and the color of the text
 customfont1 = RenderFont(filename='fonts\Joystix Monospace.ttf', fill=(0, 0, 0))
+
 
 def on_exit():
     # check if config dialog is open 
@@ -23,6 +25,7 @@ def on_exit():
         print('Tray icon exited')
         menu_icon.stop()
         sys.exit()
+
 
 def on_config():
     # check if config dialog is open
@@ -55,6 +58,7 @@ def open_config_dialog():
 
     dialog.protocol("WM_DELETE_WINDOW", on_closing)
     dialog.mainloop()
+
 
 menu = (  
     item('Config', on_config),
