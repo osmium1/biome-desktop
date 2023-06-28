@@ -42,7 +42,6 @@ def open_settings_dialog():
     titleimg = render_text(customfont1, font_size=60, displaytext='Biome', style='bold')
     titlelabel = tk.Label(dialog, image=titleimg)
     titlelabel.pack()
-
     
     # set the dialog open flag to false when user closes the dialog window
     def on_closing():

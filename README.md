@@ -10,4 +10,4 @@ A helper for Biome, to let you quickly transfer forest links from your pc to mob
 - custom font renderer for UI
 - Transmission script to send server requests
 
-Currently working on : better window-close functions
+Currently working on : duplicate window bug
