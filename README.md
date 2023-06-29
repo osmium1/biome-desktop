@@ -11,4 +11,4 @@ A helper for Biome, to let you quickly transfer forest links from your pc to mob
 - Transmission script to send server requests
 - basic IP saving functionlity and UI flow
 
-Currently working on : Send request function aka core functionality
+Currently working on : fetch link method
