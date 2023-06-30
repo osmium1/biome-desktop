@@ -1,7 +1,7 @@
 # Biome desktop client
 A helper for Biome, to let you quickly transfer forest links from your pc to mobile.
 
-- Under development, not functional yet. 
+- Application is now functional but not really presentable.
 - The project is currently [ Windows + Android ] focused
 
 ### Features implemented so far
@@ -11,5 +11,7 @@ A helper for Biome, to let you quickly transfer forest links from your pc to mob
 - Transmission script to send server requests
 - IP save and retrieve
 - token detection and retrieval
+- direct link-fetch/token-fetch from taskbar icon
+- link transmission with CURL via Batch file
 
-Currently working on : final link transmission
+Currently working on : color-change indication during link transmission
