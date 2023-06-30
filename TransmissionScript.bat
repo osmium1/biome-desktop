@@ -15,7 +15,7 @@ SET ipAddress=%~1
 SET token=%~2
 
 REM Construct the curl command
-SET curlCommand=curl -G "http://%ipAddress%:8080" --data-urlencode "url=https://www.forestapp.cc/join-room?token=%token%"
+SET "curlCommand=curl -G ""http://%ipAddress%"" --data-urlencode ""url=https://www.forestapp.cc/join-room?token=%token%"""
 
 REM Create a temporary VBScript file
 echo Set objShell = WScript.CreateObject("WScript.Shell") > %temp%\runhidden.vbs

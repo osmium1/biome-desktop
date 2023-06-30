@@ -1,10 +1,11 @@
 import os
 import pystray
 import tkinter as tk 
-import tkinter.messagebox
 from PIL import Image
-from pystray import MenuItem as item
+import tkinter.messagebox
 from CustomFont import RenderFont, render_text
+from pystray import MenuItem as item
+import subprocess
 import ipaddress
 import re
 
@@ -45,7 +46,8 @@ def find_token(clipboard_item):
     
     if match:
         # extract token
-        return match.group()
+        token = match.group()
+        return token[6:]
     elif clipboard_item.endswith("SG"):
         # only token was copied, extract token
         return clipboard_item
@@ -54,7 +56,7 @@ def find_token(clipboard_item):
         return "no_token_found"
 
 
-def trigger_link():    
+def get_token():    
     # fetching
     try:
         clipb_item = fetch_clipboard()
@@ -70,19 +72,26 @@ def trigger_link():
         # initial checks passed, token achieved
         transmit_link(token)
 
+def trigger_transmission_script(ip_address, token):
+    # code to trigger transmission script and send the link to mobile server
+    command = ["TransmissionScript.bat", ip_address, token]
+    try:
+        subprocess.check_output(command, universal_newlines=True, stderr=subprocess.STDOUT)
+        print("Link transmitted to {} with token {}".format(ip_address, token))
+    except subprocess.CalledProcessError as e:
+        print("Link transmission failed")
+        print("Tried transmission to {} with token {}".format(ip_address, token))
+        print("Error:", e.output)
+
 def transmit_link(tkn):
     global ip_address_saved
 
-    def transmit(ip_address, token):
-        # code to trigger transmission script and send the link to the server
-        print(f'Link transmitted to {ip_address} with token {token}')
-    
     def check_connection():
         # code to check if the server is running and ready to recieve
         # needs server side code to be implemented first, currently returns true by default
         return True
     
-    # checking if ip address is saved
+    # proceeding if ip address is saved
     if ip_address_saved:
         try:
             #reading the ip address from the file and saving it to stored_ip
@@ -90,7 +99,8 @@ def transmit_link(tkn):
                 stored_ip = f.read()
             print(f'IP Address retrieved: {stored_ip}')
             if check_connection():
-                transmit(stored_ip, tkn)
+                # all checks passed, triggering transmission script
+                trigger_transmission_script(stored_ip, tkn)
             else:
                 tk.messagebox.showinfo('Biome', 'Could not connect to the server, please check if the biome app server is running on your mobile and your devices are on the same network')
                 return
@@ -162,6 +172,8 @@ def open_config_dialog():
     def reset_ip_address():
         global ip_address_saved
         ip_entry.config(state='normal')  # Enable the entry field
+        save_button.config(state='normal')  # Enable the save button
+        reset_button.config(state='disabled')  # Disable the reset button
         ip_entry.delete(0, tk.END)  # Clear the entered IP address
         # Delete the IP address file
         try:
@@ -224,7 +236,7 @@ def open_config_dialog():
 
 
 menu = (  
-    item('Send Link', trigger_link, default=True),
+    item('Send Link', get_token, default=True),
     item('Config', on_config),
     item('Exit', on_exit)
     )
