@@ -6,7 +6,6 @@ from PIL import Image
 from pystray import MenuItem as item
 from CustomFont import RenderFont, render_text
 import ipaddress
-import sys
 import re
 
 
@@ -14,9 +13,9 @@ import re
 global config_dialog_open
 global ip_address_saved
 config_dialog_open = False
-
-#checking if the ip address file is present at the start of the program 
+  
 try:
+    #checking if the ip address file is present at the start of the program
     with open('ip_address.txt', 'r') as f:
         stored_ip = f.read()
         if stored_ip:
@@ -26,9 +25,85 @@ try:
 except FileNotFoundError:
     ip_address_saved = False
 
-# creating a RenderFont object with the font file and the color of the text
+
+# creating a RenderFont object with the font file
 customfont1 = RenderFont(filename='fonts\Joystix Monospace.ttf', fill=(0, 0, 0))
 
+
+def fetch_clipboard():
+    # fetches the most recently copied item from clipboard
+    tempwindow = tk.Tk()
+    clipboarditem = tempwindow.clipboard_get()
+    tempwindow.destroy()
+    return clipboarditem
+
+
+def find_token(clipboard_item):
+    # Check if the string matches the pattern "token=XXXXXXSG" anywhere in it
+    pattern = r"token=[A-Z0-9]+SG"
+    match = re.search(pattern, clipboard_item)
+    
+    if match:
+        # extract token
+        return match.group()
+    elif clipboard_item.endswith("SG"):
+        # only token was copied, extract token
+        return clipboard_item
+    else:
+        # clipboard does not contain the token or link anywhere in it
+        return "no_token_found"
+
+
+def trigger_link():    
+    # fetching
+    try:
+        clipb_item = fetch_clipboard()
+    except:
+        print("either clipboard is empty or there was an error in fetching item")
+    
+    # finding token
+    token = find_token(clipb_item)
+    if token == "no_token_found":
+        tk.messagebox.showinfo('Biome', 'Tree token was not found in your clipboard, please copy it and try again')
+        pass
+    else :
+        # initial checks passed, token achieved
+        transmit_link(token)
+
+def transmit_link(tkn):
+    global ip_address_saved
+
+    def transmit(ip_address, token):
+        # code to trigger transmission script and send the link to the server
+        print(f'Link transmitted to {ip_address} with token {token}')
+    
+    def check_connection():
+        # code to check if the server is running and ready to recieve
+        # needs server side code to be implemented first, currently returns true by default
+        return True
+    
+    # checking if ip address is saved
+    if ip_address_saved:
+        try:
+            #reading the ip address from the file and saving it to stored_ip
+            with open('ip_address.txt', 'r') as f:
+                stored_ip = f.read()
+            print(f'IP Address retrieved: {stored_ip}')
+            if check_connection():
+                transmit(stored_ip, tkn)
+            else:
+                tk.messagebox.showinfo('Biome', 'Could not connect to the server, please check if the biome app server is running on your mobile and your devices are on the same network')
+                return
+        except FileNotFoundError:
+            print("IP Address file not found")
+            tk.messagebox.showinfo('Biome', 'IP Address file not found, please save the IP address again')
+            ip_address_saved = False
+            return
+    else:
+        print("IP Address not saved")
+        tk.messagebox.showinfo('Biome', 'IP Address not saved, please save the IP address first')
+        return
+    
 
 def on_exit():
     # check if config dialog is open 
@@ -39,7 +114,7 @@ def on_exit():
     else: 
         print('Tray icon exited')
         menu_icon.stop()
-        sys.exit()
+        os._exit(0)
 
 
 def on_config():
@@ -149,11 +224,13 @@ def open_config_dialog():
 
 
 menu = (  
+    item('Send Link', trigger_link, default=True),
     item('Config', on_config),
     item('Exit', on_exit)
     )
 
 trayimg = Image.open('images\icon-128.png')
-menu_icon = pystray.Icon("menuicon", trayimg, "Biome", menu)
+menu_icon = pystray.Icon("menuicon", trayimg, "Biome", menu, HAS_DEFAULT_ACTION=True)
 
 menu_icon.run()
+
