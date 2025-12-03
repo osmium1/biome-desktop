@@ -1,6 +1,65 @@
-
+# Python
 *.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pytest_cache/
 
+# Visual Studio / .NET
+.vs/
+bin/
+obj/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.userprefs
+*.launch
+*.hidden
+project.lock.json
+project.fragment.lock.json
+artifacts/
+config/
+var/
+_build/
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.mono
+*.mc
+*.releasebackup
+*.csproj.user
+
+# Biome Specific
 ip_address.txt
-
 test.py
+firebase.json
+*.firebase-adminsdk-*.json
+.biome/
