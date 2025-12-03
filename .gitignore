@@ -63,3 +63,6 @@ test.py
 firebase.json
 *.firebase-adminsdk-*.json
 .biome/
+
+# Internal Documentation
+docs/

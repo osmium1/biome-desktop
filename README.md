@@ -5,18 +5,6 @@ experience built with .NET 10, WPF, and Windows App SDK/WinUI 3. The new code
 now lives under `src/` while the complete Python implementation has been
 archived inside `legacy/python-desktop` for reference when porting features.
 
-High-level goals and the active roadmap continue to live in
-`docs/MASTER_PLAN.md` (strategy) and `docs/CURRENT_WORK.md` (scratchpad).
-
-## Documentation
-- `docs/MASTER_PLAN.md`  authoritative plan covering UX flows, platform scope,
-  .NET 10 + Windows App SDK 1.8.3 direction, and phased milestones.
-- `docs/CURRENT_WORK.md`  rolling task list, SDK research notes, and breakout
-  work items for the new WPF shell.
-- `docs/CONFIGURATION.md`  how the .NET client reads secrets/options and what
-  tooling/runtime versions are required.
-- `docs/biome-plan.md`  legacy design log, kept for historical context.
-
 ## Repo layout (Dec 2025)
 ``r
 src/
@@ -36,7 +24,7 @@ legacy/python-desktop/
 -  Next focus: wire Firebase Storage/Firestore/FCM APIs plus Windows notifications for send success/failure.
 -  Legacy Python client remains runnable under `legacy/python-desktop` for side-by-side validation while we rebuild.
 
-## Platform requirements (matches latest Comet research)
+## Platform requirements
 | Component | Minimum | Recommended |
 | --- | --- | --- |
 | .NET SDK | 8.0 | **10.0.100 (LTS)** |
