@@ -9,16 +9,16 @@ High-level goals and the active roadmap continue to live in
 `docs/MASTER_PLAN.md` (strategy) and `docs/CURRENT_WORK.md` (scratchpad).
 
 ## Documentation
-- `docs/MASTER_PLAN.md` – authoritative plan covering UX flows, platform scope,
+- `docs/MASTER_PLAN.md`  authoritative plan covering UX flows, platform scope,
   .NET 10 + Windows App SDK 1.8.3 direction, and phased milestones.
-- `docs/CURRENT_WORK.md` – rolling task list, SDK research notes, and breakout
+- `docs/CURRENT_WORK.md`  rolling task list, SDK research notes, and breakout
   work items for the new WPF shell.
-- `docs/CONFIGURATION.md` – how the .NET client reads secrets/options and what
+- `docs/CONFIGURATION.md`  how the .NET client reads secrets/options and what
   tooling/runtime versions are required.
-- `docs/biome-plan.md` – legacy design log, kept for historical context.
+- `docs/biome-plan.md`  legacy design log, kept for historical context.
 
 ## Repo layout (Dec 2025)
-```
+``r
 src/
   Biome.Desktop.App/   # WPF shell, hosting bootstrapper, appsettings
   Biome.Desktop.Core/  # Shared configuration + upcoming domain services
@@ -26,15 +26,15 @@ src/
 legacy/python-desktop/
   biome_desktop/       # Full Python tray implementation
   scripts/, main.py, requirements.txt, etc.
-```
+``r
 
 ## Current status
-- ✅ .NET solution scaffolded with WPF shell, DI/host wiring, clipboard watcher, dispatch queue, and tray lifecycle services.
-- ✅ Temporary Windows Forms tray icon replicates the legacy flow (Send clipboard/Share image placeholder/Open console/Exit) and keeps the window hidden until summoned.
-- ✅ Configuration pipeline mirrors the old env-driven flow using `appsettings.json` + `BIOME__` environment overrides + `BiomeSettings` options.
-- ✅ Firebase transport currently spools payload envelopes to `%USERPROFILE%/.biome/outbox/{guid}.json` until credentials and HTTPS integration are ready.
-- 🔄 Next focus: wire Firebase Storage/Firestore/FCM APIs plus Windows notifications for send success/failure.
-- 📚 Legacy Python client remains runnable under `legacy/python-desktop` for side-by-side validation while we rebuild.
+-  .NET solution scaffolded with WPF shell, DI/host wiring, clipboard watcher, dispatch queue, and tray lifecycle services.
+-  Temporary Windows Forms tray icon replicates the legacy flow (Send clipboard/Share image placeholder/Open console/Exit) and keeps the window hidden until summoned.
+-  Configuration pipeline mirrors the old env-driven flow using `appsettings.json` + `BIOME__` environment overrides + `BiomeSettings` options.
+-  Firebase transport currently spools payload envelopes to `%USERPROFILE%/.biome/outbox/{guid}.json` until credentials and HTTPS integration are ready.
+-  Next focus: wire Firebase Storage/Firestore/FCM APIs plus Windows notifications for send success/failure.
+-  Legacy Python client remains runnable under `legacy/python-desktop` for side-by-side validation while we rebuild.
 
 ## Platform requirements (matches latest Comet research)
 | Component | Minimum | Recommended |
@@ -45,7 +45,7 @@ legacy/python-desktop/
 | Windows SDK | 2004 / build 19041 | Latest available via VS installer |
 | OS | Windows 10 1809+ | Windows 11 23H2+ |
 
-Windows App SDK extensions now ship through the Visual Studio Marketplace – no
+Windows App SDK extensions now ship through the Visual Studio Marketplace  no
 separate installer. Install the 1.8.3 runtime on developer machines when running
 the app unpackaged.
 
