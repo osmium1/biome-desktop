@@ -5,8 +5,8 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="DashboardPage">
+      d:DesignHeight="600" d:DesignWidth="900"
+      Title="Dashboard">
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
@@ -14,70 +14,74 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,24">
-            <ui:TextBlock FontTypography="TitleLarge" Text="Dashboard" />
-            <ui:TextBlock FontTypography="Body" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Overview of your Biome activity." />
+            <ui:TextBlock FontTypography="TitleLarge" Text="Console" />
+            <ui:TextBlock FontTypography="Body" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Real-time synchronization status." />
         </StackPanel>
 
-        <!-- Content -->
-        <ScrollViewer Grid.Row="1">
-            <WrapPanel Orientation="Horizontal">
-                
-                <!-- Quick Action: Send -->
-                <ui:CardAction Icon="Send24" Width="280" Height="120" Margin="0,0,16,16" Click="OnSendClicked">
-                    <StackPanel VerticalAlignment="Center">
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" MinWidth="300"/>
+                <ColumnDefinition Width="24"/>
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Top">
+                <ui:CardAction Icon="Send24" Click="OnSendClicked" Margin="0,0,0,16">
+                    <StackPanel>
                         <ui:TextBlock FontTypography="BodyStrong" Text="Send Clipboard" />
-                        <ui:TextBlock FontTypography="Caption" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Push current clipboard" />
+                        <ui:TextBlock FontTypography="Caption" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Push current content to devices" />
                     </StackPanel>
                 </ui:CardAction>
 
-                <!-- Stat: Last Sync -->
-                <ui:Card Width="280" Height="120" Margin="0,0,16,16">
-                    <Grid VerticalAlignment="Center">
+                <ui:TextBlock Text="Status" FontTypography="BodyStrong" Margin="0,12,0,8" />
+
+                <ui:Card Margin="0,0,0,8" Padding="12">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <ui:SymbolIcon Symbol="History24" FontSize="32" Margin="0,0,16,0"/>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <ui:TextBlock FontTypography="BodyStrong" Text="Last Sync" />
-                            <ui:TextBlock x:Name="LastSyncText" FontTypography="Caption" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Just now" />
+                        <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="20" Foreground="{DynamicResource SystemFillColorSuccessBrush}"/>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                            <ui:TextBlock Text="Last Share" FontTypography="Caption" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                            <ui:TextBlock x:Name="LastShareText" Text="Waiting for action..." FontTypography="Body"/>
                         </StackPanel>
                     </Grid>
                 </ui:Card>
 
-                <!-- Stat: Devices -->
-                <ui:Card Width="280" Height="120" Margin="0,0,16,16">
-                    <Grid VerticalAlignment="Center">
+                <ui:Card Margin="0,0,0,8" Padding="12">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <ui:SymbolIcon Symbol="Laptop24" FontSize="32" Margin="0,0,16,0"/>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <ui:TextBlock FontTypography="BodyStrong" Text="Active Devices" />
-                            <ui:TextBlock FontTypography="Caption" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="1 Device Connected" />
+                        <ui:SymbolIcon Symbol="Laptop24" FontSize="20"/>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                            <ui:TextBlock Text="This Device" FontTypography="Caption" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                            <ui:TextBlock Text="Online (Desktop)" FontTypography="Body"/>
                         </StackPanel>
                     </Grid>
                 </ui:Card>
+            </StackPanel>
 
-                <!-- Info: Version -->
-                <ui:Card Width="280" Height="120" Margin="0,0,16,16">
-                    <Grid VerticalAlignment="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <ui:SymbolIcon Symbol="Info24" FontSize="32" Margin="0,0,16,0"/>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <ui:TextBlock FontTypography="BodyStrong" Text="Biome Version" />
-                            <ui:TextBlock FontTypography="Caption" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="v0.1.0-alpha" />
-                        </StackPanel>
-                    </Grid>
-                </ui:Card>
+            <ui:Card Grid.Column="2" VerticalAlignment="Stretch" VerticalContentAlignment="Top" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Border BorderBrush="{DynamicResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1" Padding="16,12">
+                        <ui:TextBlock Text="Recent Activity" FontTypography="BodyStrong" />
+                    </Border>
 
-            </WrapPanel>
-        </ScrollViewer>
+                    <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.6" Margin="0,32,0,0">
+                        <ui:SymbolIcon Symbol="Sleep24" FontSize="48" Margin="0,0,0,12" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                        <ui:TextBlock Text="No recent transfers" FontTypography="Body" Foreground="{DynamicResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </ui:Card>
+        </Grid>
     </Grid>
 </Page>

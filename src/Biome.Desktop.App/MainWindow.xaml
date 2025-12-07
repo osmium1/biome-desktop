@@ -6,7 +6,7 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:pages="clr-namespace:Biome.Desktop.App.Pages"
         mc:Ignorable="d"
-        Title="Biome Desktop" Height="650" Width="1000"
+        Title="Biome Desktop" Height="700" Width="1100"
         WindowStartupLocation="CenterScreen"
         WindowBackdropType="Mica"
         ExtendsContentIntoTitleBar="True">
@@ -26,16 +26,11 @@
             
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem Content="Dashboard" Icon="Home24" TargetPageType="{x:Type pages:DashboardPage}" />
-                <ui:NavigationViewItem Content="History" Icon="History24" IsEnabled="False" ToolTip="Coming soon" />
             </ui:NavigationView.MenuItems>
 
             <ui:NavigationView.FooterMenuItems>
                 <ui:NavigationViewItem Content="Settings" Icon="Settings24" TargetPageType="{x:Type pages:SettingsPage}" />
             </ui:NavigationView.FooterMenuItems>
-
-            <ui:NavigationView.ContentOverlay>
-                <Frame x:Name="RootFrame" NavigationUIVisibility="Hidden" />
-            </ui:NavigationView.ContentOverlay>
 
         </ui:NavigationView>
     </Grid>

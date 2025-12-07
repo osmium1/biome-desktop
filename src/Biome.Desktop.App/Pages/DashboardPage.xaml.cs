@@ -31,7 +31,7 @@ namespace Biome.Desktop.App.Pages
                         if (payload != null)
                         {
                             await dispatchQueue.EnqueueAsync(payload, CancellationToken.None);
-                            LastSyncText.Text = "Just now";
+                            LastShareText.Text = "Just now";
                         }
                     }
                     catch (Exception)

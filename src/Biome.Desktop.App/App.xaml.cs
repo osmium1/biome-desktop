@@ -1,6 +1,8 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using Biome.Desktop.App.Configuration;
 using Biome.Desktop.App.Clipboard;
 using Biome.Desktop.App.Dispatch;
 using Biome.Desktop.App.Tray;
@@ -34,15 +36,24 @@ public partial class App : System.Windows.Application
     {
         var builder = Host.CreateApplicationBuilder();
 
+        var userConfigPath = ResolveUserConfigPath();
+
         builder.Configuration
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
-            .AddEnvironmentVariables(prefix: "BIOME__");
+            .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
+        if (!string.IsNullOrWhiteSpace(userConfigPath))
+        {
+            builder.Configuration.AddJsonFile(userConfigPath, optional: true, reloadOnChange: true);
+        }
+
+        builder.Configuration.AddEnvironmentVariables(prefix: "BIOME__");
 
         builder.Services.AddHttpClient();
         builder.Services.Configure<BiomeSettings>(builder.Configuration.GetSection("Biome"));
 
         builder.Services.AddSingleton<MainWindow>();
+        builder.Services.AddSingleton<UserSettingsStore>();
         builder.Services.AddSingleton<ITrayService, TrayService>();
         builder.Services.AddSingleton<IFirebaseTokenProvider, FirebaseTokenProvider>();
         builder.Services.AddSingleton<IMainWindowController, MainWindowController>();
@@ -58,6 +69,19 @@ public partial class App : System.Windows.Application
         builder.Logging.AddConsole();
 
         return builder.Build();
+    }
+
+    private static string? ResolveUserConfigPath()
+    {
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        if (string.IsNullOrWhiteSpace(home))
+        {
+            return null;
+        }
+
+        var directory = Path.Combine(home, ".biome");
+        Directory.CreateDirectory(directory);
+        return Path.Combine(directory, "appsettings.user.json");
     }
 
     protected override async void OnStartup(StartupEventArgs e)
