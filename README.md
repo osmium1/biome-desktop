@@ -18,6 +18,7 @@ legacy/python-desktop/
 
 ## Current status
 -  .NET solution scaffolded with WPF shell, DI/host wiring, clipboard watcher, dispatch queue, and tray lifecycle services.
+-  NavigationView is locked to a compact icon rail; pane toggle is suppressed (style + code-behind) so only the Dashboard icon (top) and Settings icon (footer) remain visible.
 -  Temporary Windows Forms tray icon replicates the legacy flow (Send clipboard/Share image placeholder/Open console/Exit) and keeps the window hidden until summoned.
 -  Configuration pipeline mirrors the old env-driven flow using `appsettings.json` + `BIOME__` environment overrides + `BiomeSettings` options.
 -  Firebase transport currently spools payload envelopes to `%USERPROFILE%/.biome/outbox/{guid}.json` until credentials and HTTPS integration are ready.
@@ -43,6 +44,8 @@ the app unpackaged.
 2. `dotnet restore Biome.Desktop.sln`
 3. `dotnet build Biome.Desktop.sln`
 4. Launch the app from Visual Studio or `dotnet run --project src/Biome.Desktop.App`.
+
+Navigation note: the sidebar is intentionally fixed to the compact rail with icons only; the pane toggle is disabled/stripped in XAML (`MainWindow.xaml`) and code-behind (`MainWindow.xaml.cs`).
 
 The window currently displays a placeholder surface while background services
 and tray integration are implemented. Real transport logic will arrive once the

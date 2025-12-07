@@ -20,16 +20,46 @@
         <ui:TitleBar Grid.Row="0" Title="Biome Desktop" />
 
         <ui:NavigationView Grid.Row="1" x:Name="RootNavigation"
-                           PaneDisplayMode="Left"
-                           OpenPaneLength="250"
-                           IsBackButtonVisible="Collapsed">
+            PaneDisplayMode="Left"
+            IsPaneOpen="False"
+            CompactPaneLength="56"
+            OpenPaneLength="56"
+            IsBackButtonVisible="Collapsed"
+            ScrollViewer.VerticalScrollBarVisibility="Disabled"
+            ScrollViewer.CanContentScroll="False">
+
+            <ui:NavigationView.Resources>
+                <!-- Collapse any toggle buttons within the nav template -->
+                <Style TargetType="ToggleButton">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Setter Property="IsHitTestVisible" Value="False" />
+                    <Setter Property="Width" Value="0" />
+                    <Setter Property="Height" Value="0" />
+                    <Setter Property="Opacity" Value="0" />
+                    <Setter Property="Margin" Value="0" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ToggleButton" />
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ui:NavigationView.Resources>
             
             <ui:NavigationView.MenuItems>
-                <ui:NavigationViewItem Content="Dashboard" Icon="Home24" TargetPageType="{x:Type pages:DashboardPage}" />
+                <ui:NavigationViewItem TargetPageType="{x:Type pages:DashboardPage}" ToolTip="Dashboard">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Home24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
 
             <ui:NavigationView.FooterMenuItems>
-                <ui:NavigationViewItem Content="Settings" Icon="Settings24" TargetPageType="{x:Type pages:SettingsPage}" />
+                <ui:NavigationViewItem TargetPageType="{x:Type pages:SettingsPage}" ToolTip="Settings">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Settings24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
             </ui:NavigationView.FooterMenuItems>
 
         </ui:NavigationView>
