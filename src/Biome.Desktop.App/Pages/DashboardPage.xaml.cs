@@ -15,6 +15,26 @@ namespace Biome.Desktop.App.Pages
             InitializeComponent();
         }
 
+        private void OnRootMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            if (ContentScroll != null)
+            {
+                double offset = ContentScroll.VerticalOffset - e.Delta;
+                ContentScroll.ScrollToVerticalOffset(offset);
+                e.Handled = true;
+            }
+        }
+
+        private void OnContentMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            if (ContentScroll != null)
+            {
+                double offset = ContentScroll.VerticalOffset - e.Delta;
+                ContentScroll.ScrollToVerticalOffset(offset);
+                e.Handled = true;
+            }
+        }
+
         private async void OnSendClicked(object sender, RoutedEventArgs e)
         {
             // Resolve the service from the App's service provider
