@@ -29,6 +29,8 @@ public sealed class TrayService : ITrayService, IAsyncDisposable
     private readonly CancellationTokenSource _cts = new();
     private readonly Dictionary<TrayIconState, Icon> _stateIcons;
 
+    public event Action<TrayIconState>? StateChanged;
+
     public TrayService(
         ILogger<TrayService> logger,
         IClipboardService clipboardService,
@@ -78,6 +80,8 @@ public sealed class TrayService : ITrayService, IAsyncDisposable
             {
                 // placeholder for future balloon notifications
             }
+            
+            StateChanged?.Invoke(state);
         });
     }
 

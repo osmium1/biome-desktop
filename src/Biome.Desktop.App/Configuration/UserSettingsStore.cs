@@ -43,6 +43,21 @@ public sealed class UserSettingsStore
         WriteModel(model);
     }
 
+    public bool LoadSpeedBoostEnabled()
+    {
+        var model = ReadModel();
+        return model?.Biome?.UI?.EnableSpeedBoost ?? true; // Default to true
+    }
+
+    public void SaveSpeedBoostEnabled(bool enabled)
+    {
+        var model = ReadModel() ?? new UserSettingsModel();
+        model.Biome ??= new();
+        model.Biome.UI ??= new();
+        model.Biome.UI.EnableSpeedBoost = enabled;
+        WriteModel(model);
+    }
+
     public void Reset()
     {
         if (File.Exists(_filePath))
@@ -83,6 +98,7 @@ public sealed class UserSettingsStore
         public sealed class BiomeSection
         {
             public FirebaseSection? Firebase { get; set; }
+            public UISection? UI { get; set; }
 
             public sealed class FirebaseSection
             {
@@ -90,6 +106,11 @@ public sealed class UserSettingsStore
                 public string? ServiceAccountPath { get; set; }
                 public string? DeviceToken { get; set; }
                 public string? StorageBucket { get; set; }
+            }
+
+            public sealed class UISection
+            {
+                public bool? EnableSpeedBoost { get; set; }
             }
         }
     }

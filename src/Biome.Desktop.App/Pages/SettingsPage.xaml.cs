@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Biome.Desktop.App.Configuration;
+using Biome.Desktop.App.Windowing;
 using Biome.Desktop.Core.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -14,6 +15,10 @@ public partial class SettingsPage : Page
 {
     private readonly BiomeSettings _settings;
     private readonly UserSettingsStore _userSettings;
+    
+    private string _originalConfigPath = string.Empty;
+    private bool _originalSpeedBoost = true;
+    private bool _isLoading = false;
 
     public SettingsPage()
     {
@@ -29,6 +34,7 @@ public partial class SettingsPage : Page
 
     private void LoadSettings()
     {
+        _isLoading = true;
         DeviceIdBox.Text = Environment.GetEnvironmentVariable("BIOME_DEVICE_ID") ?? Environment.MachineName;
 
         var storedPath = _userSettings.LoadFirebaseServiceAccountPath();
@@ -43,6 +49,51 @@ public partial class SettingsPage : Page
         }
 
         ConfigPathBox.Text = configPath;
+        SpeedBoostToggle.IsChecked = _userSettings.LoadSpeedBoostEnabled();
+
+        _originalConfigPath = ConfigPathBox.Text;
+        _originalSpeedBoost = SpeedBoostToggle.IsChecked ?? true;
+        _isLoading = false;
+        CheckForChanges();
+    }
+
+    private void OnSettingChanged(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        CheckForChanges();
+    }
+
+    private void OnRootMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+    {
+        if (ContentScroll != null)
+        {
+            double offset = ContentScroll.VerticalOffset - e.Delta;
+            ContentScroll.ScrollToVerticalOffset(offset);
+            e.Handled = true;
+        }
+    }
+
+    private void OnContentMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+    {
+        // Allow scrolling even when pointer is over child controls
+        var scroll = ContentScroll;
+        if (scroll != null)
+        {
+            double offset = scroll.VerticalOffset - e.Delta;
+            scroll.ScrollToVerticalOffset(offset);
+            e.Handled = true;
+        }
+    }
+
+    private void CheckForChanges()
+    {
+        if (UnsavedChangesWarning == null) return;
+
+        var currentPath = ConfigPathBox.Text;
+        var currentBoost = SpeedBoostToggle.IsChecked ?? true;
+
+        bool isDirty = currentPath != _originalConfigPath || currentBoost != _originalSpeedBoost;
+        UnsavedChangesWarning.Visibility = isDirty ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void BrowseConfig_Click(object sender, RoutedEventArgs e)
@@ -58,6 +109,11 @@ public partial class SettingsPage : Page
         {
             ConfigPathBox.Text = dialog.FileName;
         }
+    }
+
+    private void TestAnimation_Click(object sender, RoutedEventArgs e)
+    {
+        new SpeedboostOverlay().StartAnimation(isDemo: true);
     }
 
     private void Save_Click(object sender, RoutedEventArgs e)
@@ -80,7 +136,13 @@ public partial class SettingsPage : Page
         try
         {
             _userSettings.SaveFirebaseServiceAccountPath(path);
-            ShowStatus("Saved", "Firebase credentials path updated. Changes apply immediately.", InfoBarSeverity.Success);
+            _userSettings.SaveSpeedBoostEnabled(SpeedBoostToggle.IsChecked ?? true);
+            
+            _originalConfigPath = path;
+            _originalSpeedBoost = SpeedBoostToggle.IsChecked ?? true;
+            CheckForChanges();
+
+            ShowStatus("Saved", "Settings updated successfully.", InfoBarSeverity.Success);
         }
         catch (Exception ex)
         {
