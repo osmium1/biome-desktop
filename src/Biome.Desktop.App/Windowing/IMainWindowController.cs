@@ -9,6 +9,5 @@ public interface IMainWindowController
     Task ShowWindowAsync(CancellationToken cancellationToken = default);
     Task HideWindowAsync(CancellationToken cancellationToken = default);
     Task ToggleWindowAsync(CancellationToken cancellationToken = default);
-    void ShowSettings();
     bool IsVisible { get; }
 }

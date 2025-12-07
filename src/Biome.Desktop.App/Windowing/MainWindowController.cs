@@ -6,23 +6,18 @@ using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Extensions.Logging;
 
-using Microsoft.Extensions.Options;
-using Biome.Desktop.Core.Configuration;
-
 namespace Biome.Desktop.App.Windowing;
 
 public sealed class MainWindowController : IMainWindowController
 {
     private readonly ILogger<MainWindowController> _logger;
-    private readonly IServiceProvider _serviceProvider;
     private MainWindow? _window;
     private bool _isShuttingDown;
     private bool _isVisible;
 
-    public MainWindowController(ILogger<MainWindowController> logger, IServiceProvider serviceProvider)
+    public MainWindowController(ILogger<MainWindowController> logger)
     {
         _logger = logger;
-        _serviceProvider = serviceProvider;
     }
 
     public bool IsVisible => _isVisible;
@@ -45,23 +40,6 @@ public sealed class MainWindowController : IMainWindowController
         _logger.LogInformation("Main window controller initialized.");
         _window.Hide();
         _isVisible = false;
-    }
-
-    public void ShowSettings()
-    {
-        _window?.Dispatcher.Invoke(() =>
-        {
-            // Resolve settings via DI manually since we don't have constructor injection for the window here easily
-            // or we can just instantiate it if we pass dependencies.
-            // For simplicity in this phase, we'll use the service provider.
-            var settings = _serviceProvider.GetService(typeof(IOptions<BiomeSettings>)) as IOptions<BiomeSettings>;
-            if (settings != null)
-            {
-                var settingsWindow = new SettingsWindow(settings);
-                settingsWindow.Show();
-                settingsWindow.Activate();
-            }
-        });
     }
 
     public Task ShowWindowAsync(CancellationToken cancellationToken = default)

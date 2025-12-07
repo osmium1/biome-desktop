@@ -43,7 +43,6 @@ public partial class App : System.Windows.Application
         builder.Services.Configure<BiomeSettings>(builder.Configuration.GetSection("Biome"));
 
         builder.Services.AddSingleton<MainWindow>();
-        builder.Services.AddTransient<SettingsWindow>();
         builder.Services.AddSingleton<ITrayService, TrayService>();
         builder.Services.AddSingleton<IFirebaseTokenProvider, FirebaseTokenProvider>();
         builder.Services.AddSingleton<IMainWindowController, MainWindowController>();

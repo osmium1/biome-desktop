@@ -26,7 +26,6 @@ public sealed class TrayService : ITrayService, IAsyncDisposable
 
     private NotifyIcon? _notifyIcon;
     private ContextMenuStrip? _menu;
-    private ToolStripMenuItem? _consoleMenuItem;
     private readonly CancellationTokenSource _cts = new();
     private readonly Dictionary<TrayIconState, Icon> _stateIcons;
 
@@ -74,17 +73,11 @@ public sealed class TrayService : ITrayService, IAsyncDisposable
 
             _notifyIcon.Text = $"Biome Desktop ({state})";
             _notifyIcon.Icon = ResolveIcon(state);
-            
-            // Only show balloon tips for errors or explicit requests, not for every state change.
-            // Success states are silent (icon change only).
+
             if (state == TrayIconState.Error && !string.IsNullOrWhiteSpace(tooltip))
             {
-                // We use MessageBox for errors in the command handler, but if an async error occurs,
-                // we might still want a balloon tip or just log it.
-                // For now, let's keep balloon tips minimal.
+                // placeholder for future balloon notifications
             }
-            
-            UpdateConsoleMenuLabel();
         });
     }
 
@@ -92,13 +85,9 @@ public sealed class TrayService : ITrayService, IAsyncDisposable
     {
         var menu = new ContextMenuStrip();
 
-        _consoleMenuItem = new ToolStripMenuItem("Open Biome console");
-        _consoleMenuItem.Click += async (_, _) => await _windowController.ToggleWindowAsync(_cts.Token).ConfigureAwait(false);
-        menu.Items.Add(_consoleMenuItem);
-
-        var settingsItem = new ToolStripMenuItem("Settings");
-        settingsItem.Click += (_, _) => _windowController.ShowSettings();
-        menu.Items.Add(settingsItem);
+        var configureItem = new ToolStripMenuItem("Configure Biome");
+        configureItem.Click += async (_, _) => await _windowController.ShowWindowAsync(_cts.Token).ConfigureAwait(false);
+        menu.Items.Add(configureItem);
 
         menu.Items.Add(new ToolStripSeparator());
 
@@ -112,21 +101,7 @@ public sealed class TrayService : ITrayService, IAsyncDisposable
         exitItem.Click += (_, _) => _dispatcher.Invoke(() => System.Windows.Application.Current?.Shutdown());
         menu.Items.Add(exitItem);
 
-        menu.Opening += (_, _) => UpdateConsoleMenuLabel();
-
         return menu;
-    }
-
-    private void UpdateConsoleMenuLabel()
-    {
-        if (_consoleMenuItem is null)
-        {
-            return;
-        }
-
-        _consoleMenuItem.Text = _windowController.IsVisible
-            ? "Hide Biome console"
-            : "Open Biome console";
     }
 
     private async void OnNotifyIconMouseClick(object? sender, MouseEventArgs e)
