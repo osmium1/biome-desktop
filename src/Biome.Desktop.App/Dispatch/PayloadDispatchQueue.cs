@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Channels;
@@ -11,6 +12,8 @@ public sealed class PayloadDispatchQueue : IPayloadDispatchQueue
 {
     private readonly Channel<ClipboardPayload> _channel;
 
+    public event EventHandler? PayloadEnqueued;
+
     public PayloadDispatchQueue()
     {
         var options = new UnboundedChannelOptions
@@ -22,8 +25,11 @@ public sealed class PayloadDispatchQueue : IPayloadDispatchQueue
         _channel = Channel.CreateUnbounded<ClipboardPayload>(options);
     }
 
-    public ValueTask EnqueueAsync(ClipboardPayload payload, CancellationToken cancellationToken)
-        => _channel.Writer.WriteAsync(payload, cancellationToken);
+    public async ValueTask EnqueueAsync(ClipboardPayload payload, CancellationToken cancellationToken)
+    {
+        await _channel.Writer.WriteAsync(payload, cancellationToken);
+        PayloadEnqueued?.Invoke(this, EventArgs.Empty);
+    }
 
     public IAsyncEnumerable<ClipboardPayload> ReadAllAsync(CancellationToken cancellationToken)
         => _channel.Reader.ReadAllAsync(cancellationToken);
