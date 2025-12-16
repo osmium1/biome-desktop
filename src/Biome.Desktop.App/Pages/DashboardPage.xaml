@@ -6,95 +6,226 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     mc:Ignorable="d" 
     d:DesignHeight="600" d:DesignWidth="900"
-    Title="Dashboard">
+    Title="Console"
+    Background="{StaticResource BiomeMistyWhiteBrush}">
 
-    <Grid Margin="24" 
-          VerticalAlignment="Stretch" 
-          Background="Transparent"
-          PreviewMouseWheel="OnPageMouseWheel">
-        
+    <Grid Margin="32,16,32,24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- ═══════════════════════════════════════════════════════════════
+             HEADER - Console title with status subtitle
+        ═══════════════════════════════════════════════════════════════ -->
         <StackPanel Grid.Row="0" Margin="0,0,0,24">
-            <ui:TextBlock FontTypography="TitleLarge" Text="Console" />
-            <ui:TextBlock FontTypography="Body" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Real-time synchronization status." />
+            <TextBlock Text="Console" 
+                       FontSize="28" 
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource BiomeTextPrimaryBrush}"/>
+            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                <Ellipse Width="8" Height="8" 
+                         Fill="{StaticResource BiomeSuccessBrush}" 
+                         VerticalAlignment="Center"
+                         Margin="0,0,8,0"/>
+                <TextBlock x:Name="StatusSubtitle"
+                           Text="Your devices are synchronized" 
+                           FontSize="14"
+                           Foreground="{StaticResource BiomeTextSecondaryBrush}"/>
+            </StackPanel>
         </StackPanel>
 
-        <ScrollViewer x:Name="ContentScroll"
-                  Grid.Row="1"
-                  VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  Padding="0,0,16,0"
-                  Focusable="False"
-                  CanContentScroll="False"
-                  Background="Transparent">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" MinWidth="300"/>
-                    <ColumnDefinition Width="24"/>
-                    <ColumnDefinition Width="3*" />
-                </Grid.ColumnDefinitions>
+        <!-- ═══════════════════════════════════════════════════════════════
+             MAIN CONTENT - Two column layout
+        ═══════════════════════════════════════════════════════════════ -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="280"/>
+                <ColumnDefinition Width="24"/>
+                <ColumnDefinition Width="1.5*" MinWidth="350"/>
+            </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" VerticalAlignment="Top">
-                    <ui:CardAction Icon="Send24" Click="OnSendClicked" Margin="0,0,0,16">
-                        <StackPanel>
-                            <ui:TextBlock FontTypography="BodyStrong" Text="Send Clipboard" />
-                            <ui:TextBlock FontTypography="Caption" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Push current content to devices" />
-                        </StackPanel>
-                    </ui:CardAction>
-
-                    <ui:TextBlock Text="Status" FontTypography="BodyStrong" Margin="0,12,0,8" />
-
-                    <ui:Card Margin="0,0,0,8" Padding="12">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="20" Foreground="{DynamicResource SystemFillColorSuccessBrush}"/>
-                            <StackPanel Grid.Column="1" Margin="12,0,0,0">
-                                <ui:TextBlock Text="Last Share" FontTypography="Caption" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                                <ui:TextBlock x:Name="LastShareText" Text="Waiting for action..." FontTypography="Body"/>
-                            </StackPanel>
-                        </Grid>
-                    </ui:Card>
-
-                    <ui:Card Margin="0,0,0,8" Padding="12">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <ui:SymbolIcon Symbol="Laptop24" FontSize="20"/>
-                            <StackPanel Grid.Column="1" Margin="12,0,0,0">
-                                <ui:TextBlock Text="This Device" FontTypography="Caption" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                                <ui:TextBlock Text="Online (Desktop)" FontTypography="Body"/>
-                            </StackPanel>
-                        </Grid>
-                    </ui:Card>
-                </StackPanel>
-
-                <ui:Card Grid.Column="2" VerticalAlignment="Stretch" VerticalContentAlignment="Top" Padding="0">
+            <!-- LEFT COLUMN - Actions & Status -->
+            <StackPanel Grid.Column="0">
+                
+                <!-- Send Clipboard Action Card -->
+                <Border Style="{StaticResource BiomeCardBorderStyle}" 
+                        Padding="20" Margin="0,0,0,16" Cursor="Hand"
+                        MouseLeftButtonUp="OnSendClicked">
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
                         
-                        <Border BorderBrush="{DynamicResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1" Padding="16,12">
-                            <ui:TextBlock Text="Recent Activity" FontTypography="BodyStrong" />
+                        <Border Grid.Column="0" 
+                                Width="48" Height="48" 
+                                CornerRadius="12"
+                                Background="{StaticResource BiomeMossGreenBrush}">
+                            <ui:SymbolIcon Symbol="Send24" FontSize="22" 
+                                           Foreground="White"
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"/>
                         </Border>
+                        
+                        <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Send Clipboard" 
+                                       FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{StaticResource BiomeTextPrimaryBrush}"/>
+                            <TextBlock Text="Push content to your devices" 
+                                       FontSize="13"
+                                       Foreground="{StaticResource BiomeTextSecondaryBrush}"/>
+                        </StackPanel>
+                        
+                        <ui:SymbolIcon Grid.Column="2" Symbol="ChevronRight24" 
+                                       FontSize="16"
+                                       Foreground="{StaticResource BiomeTextMutedBrush}"
+                                       VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
 
-                        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.6" Margin="0,32,0,0">
-                            <ui:SymbolIcon Symbol="Sleep24" FontSize="48" Margin="0,0,0,12" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                            <ui:TextBlock Text="No recent transfers" FontTypography="Body" Foreground="{DynamicResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
+                <!-- Status Section -->
+                <TextBlock Text="Status" 
+                           FontSize="13" FontWeight="SemiBold"
+                           Foreground="{StaticResource BiomeTextSecondaryBrush}"
+                           Margin="4,8,0,12"/>
+
+                <!-- Last Share Status -->
+                <Border Style="{StaticResource BiomeCardBorderStyle}" 
+                        Padding="16" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Grid.Column="0" 
+                                Width="36" Height="36" 
+                                CornerRadius="8"
+                                Background="#10000000">
+                            <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="18" 
+                                           Foreground="{StaticResource BiomeSuccessBrush}"
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"/>
+                        </Border>
+                        
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Last Share" 
+                                       FontSize="12"
+                                       Foreground="{StaticResource BiomeTextSecondaryBrush}"/>
+                            <TextBlock x:Name="LastShareText" 
+                                       Text="Ready to send" 
+                                       FontSize="14" FontWeight="Medium"
+                                       Foreground="{StaticResource BiomeTextPrimaryBrush}"/>
                         </StackPanel>
                     </Grid>
-                </ui:Card>
-            </Grid>
-        </ScrollViewer>
+                </Border>
+
+                <!-- This Device -->
+                <Border Style="{StaticResource BiomeCardBorderStyle}" 
+                        Padding="16" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Grid.Column="0" 
+                                Width="36" Height="36" 
+                                CornerRadius="8"
+                                Background="#10000000">
+                            <ui:SymbolIcon Symbol="Laptop24" FontSize="18" 
+                                           Foreground="{StaticResource BiomeMossGreenBrush}"
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"/>
+                        </Border>
+                        
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="This Device" 
+                                       FontSize="12"
+                                       Foreground="{StaticResource BiomeTextSecondaryBrush}"/>
+                            <TextBlock x:Name="DeviceNameText" 
+                                       Text="Desktop" 
+                                       FontSize="14" FontWeight="Medium"
+                                       Foreground="{StaticResource BiomeTextPrimaryBrush}"/>
+                        </StackPanel>
+                        
+                        <Border Grid.Column="2" 
+                                CornerRadius="4" 
+                                Padding="8,4"
+                                Background="{StaticResource BiomeMorningDewBrush}"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="Online" 
+                                       FontSize="11" FontWeight="SemiBold"
+                                       Foreground="{StaticResource BiomeDeepForestBrush}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- RIGHT COLUMN - Recent Activity -->
+            <Border Grid.Column="2" 
+                    Style="{StaticResource BiomeCardBorderStyle}"
+                    Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Activity Header -->
+                    <Border Grid.Row="0" 
+                            BorderBrush="#10000000" 
+                            BorderThickness="0,0,0,1" 
+                            Padding="20,16">
+                        <Grid>
+                            <TextBlock Text="Recent Activity" 
+                                       FontSize="15" FontWeight="SemiBold"
+                                       Foreground="{StaticResource BiomeTextPrimaryBrush}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Activity Content (Empty State) -->
+                    <StackPanel Grid.Row="1" 
+                                x:Name="EmptyActivityState"
+                                VerticalAlignment="Center" 
+                                HorizontalAlignment="Center" 
+                                Margin="0,40,0,40">
+                        <Border Width="64" Height="64" 
+                                CornerRadius="32"
+                                Background="#08000000"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,16">
+                            <ui:SymbolIcon Symbol="Sleep24" FontSize="28" 
+                                           Foreground="{StaticResource BiomeTextMutedBrush}"
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="No recent transfers" 
+                                   FontSize="15" FontWeight="Medium"
+                                   Foreground="{StaticResource BiomeTextSecondaryBrush}" 
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Your clipboard activity will appear here" 
+                                   FontSize="13"
+                                   Foreground="{StaticResource BiomeTextMutedBrush}" 
+                                   HorizontalAlignment="Center"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Activity List (Hidden by default) -->
+                    <ScrollViewer Grid.Row="1" 
+                                  x:Name="ActivityListContainer"
+                                  Visibility="Collapsed"
+                                  VerticalScrollBarVisibility="Auto"
+                                  Padding="8">
+                        <StackPanel x:Name="ActivityList">
+                            <!-- Activity items will be added here dynamically -->
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

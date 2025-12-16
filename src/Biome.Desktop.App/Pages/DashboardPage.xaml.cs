@@ -14,20 +14,10 @@ namespace Biome.Desktop.App.Pages
         public DashboardPage()
         {
             InitializeComponent();
+            DeviceNameText.Text = Environment.MachineName;
         }
 
-        // FIX: Shared robust scroll logic — mirror the Settings page behavior so cards scroll even when focused.
-        private void OnPageMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (ContentScroll == null) return;
-
-            double scrollAmount = e.Delta > 0 ? -48 : 48;
-            ContentScroll.ScrollToVerticalOffset(ContentScroll.VerticalOffset + scrollAmount);
-
-            e.Handled = true;
-        }
-
-        private async void OnSendClicked(object sender, RoutedEventArgs e)
+        private async void OnSendClicked(object sender, MouseButtonEventArgs e)
         {
             // Resolve services from the App host so this page stays dumb/passive.
             if (System.Windows.Application.Current is App app)
@@ -45,11 +35,18 @@ namespace Biome.Desktop.App.Pages
                         {
                             await dispatchQueue.EnqueueAsync(payload, CancellationToken.None);
                             LastShareText.Text = "Just now";
+                            StatusSubtitle.Text = "Content sent successfully";
+                        }
+                        else
+                        {
+                            LastShareText.Text = "Clipboard empty";
+                            StatusSubtitle.Text = "No content to send";
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        // Ignore for now — errors get surfaced in diagnostics panes later.
+                        LastShareText.Text = "Failed";
+                        StatusSubtitle.Text = $"Error: {ex.Message}";
                     }
                 }
             }
