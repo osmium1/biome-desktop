@@ -23,7 +23,7 @@ public partial class MainWindow : FluentWindow
         
         _logger.LogInformation("Main window initialized");
 
-        // Configure Navigation
+        // Wire the NavigationView lifecycle so the pane stays in compact mode and always starts on the dashboard.
         RootNavigation.Loaded += (sender, args) =>
         {
             RootNavigation.IsPaneOpen = false;
@@ -33,6 +33,7 @@ public partial class MainWindow : FluentWindow
 
         RootNavigation.LayoutUpdated += (_, _) =>
         {
+            // Templates in Wpf.Ui love to resurrect the toggle; keep stripping it every layout pass.
             HidePaneToggles();
             RootNavigation.IsPaneOpen = false;
         };
@@ -47,8 +48,14 @@ public partial class MainWindow : FluentWindow
         {
             var toggle = FindParent<ToggleButton>(source);
             var buttonToggle = FindParent<Button>(source);
-            if (toggle != null || buttonToggle != null)
+
+            // Only intercept if it looks like a navigation toggle
+            bool isToggle = toggle != null && IsPaneToggleName(toggle.Name);
+            bool isButtonToggle = buttonToggle != null && IsPaneToggleName(buttonToggle.Name);
+
+            if (isToggle || isButtonToggle)
             {
+                // Force-close the pane and mark the event handled so the user never sees the “nub”.
                 HidePaneToggles();
                 RootNavigation.IsPaneOpen = false;
                 e.Handled = true;
@@ -58,6 +65,7 @@ public partial class MainWindow : FluentWindow
 
     private void HidePaneToggles()
     {
+        // Strip any ToggleButton instances from the template so the rail behaves like a fixed icon bar.
         foreach (var toggle in FindChildren<ToggleButton>(RootNavigation))
         {
             StripToggleVisual(toggle);

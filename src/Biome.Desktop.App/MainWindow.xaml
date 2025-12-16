@@ -29,7 +29,6 @@
             ScrollViewer.CanContentScroll="False">
 
             <ui:NavigationView.Resources>
-                <!-- Collapse any toggle buttons within the nav template -->
                 <Style TargetType="ToggleButton">
                     <Setter Property="Visibility" Value="Collapsed" />
                     <Setter Property="IsHitTestVisible" Value="False" />

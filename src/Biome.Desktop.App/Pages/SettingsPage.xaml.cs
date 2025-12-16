@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Biome.Desktop.App.Configuration;
 using Biome.Desktop.App.Windowing;
 using Biome.Desktop.Core.Configuration;
@@ -24,6 +25,7 @@ public partial class SettingsPage : Page
     {
         InitializeComponent();
 
+        // Resolve the DI graph once up front (needed for options + settings store).
         var services = (System.Windows.Application.Current as App)?.Services;
         var options = services?.GetService<IOptions<BiomeSettings>>();
         _settings = options?.Value ?? new BiomeSettings();
@@ -35,6 +37,7 @@ public partial class SettingsPage : Page
     private void LoadSettings()
     {
         _isLoading = true;
+        // Device ID is read-only: default to env override else machine name.
         DeviceIdBox.Text = Environment.GetEnvironmentVariable("BIOME_DEVICE_ID") ?? Environment.MachineName;
 
         var storedPath = _userSettings.LoadFirebaseServiceAccountPath();
@@ -57,32 +60,28 @@ public partial class SettingsPage : Page
         CheckForChanges();
     }
 
+    // FIX: Manual scroll pumping to fix "dead zones".
+    // We capture wheel events at the Page level so controls inside cards cannot swallow them.
+    private void OnPageMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (ContentScroll == null) return;
+
+        // If the scroll viewer can't scroll (not enough content), don't hijack the event.
+        if (ContentScroll.ScrollableHeight <= 0) return;
+
+        // Manually scroll. Using 48 as a standard step size.
+        double scrollAmount = e.Delta > 0 ? -48 : 48;
+        ContentScroll.ScrollToVerticalOffset(ContentScroll.VerticalOffset + scrollAmount);
+
+        // Stop the event so the MainWindow doesn't try to scroll the whole page (Header/Footer)
+        e.Handled = true;
+    }
+
     private void OnSettingChanged(object sender, RoutedEventArgs e)
     {
+        // Avoid dirty tracking while we populate the initial values.
         if (_isLoading) return;
         CheckForChanges();
-    }
-
-    private void OnRootMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
-    {
-        if (ContentScroll != null)
-        {
-            double offset = ContentScroll.VerticalOffset - e.Delta;
-            ContentScroll.ScrollToVerticalOffset(offset);
-            e.Handled = true;
-        }
-    }
-
-    private void OnContentMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
-    {
-        // Allow scrolling even when pointer is over child controls
-        var scroll = ContentScroll;
-        if (scroll != null)
-        {
-            double offset = scroll.VerticalOffset - e.Delta;
-            scroll.ScrollToVerticalOffset(offset);
-            e.Handled = true;
-        }
     }
 
     private void CheckForChanges()
@@ -92,12 +91,14 @@ public partial class SettingsPage : Page
         var currentPath = ConfigPathBox.Text;
         var currentBoost = SpeedBoostToggle.IsChecked ?? true;
 
+        // When any user-facing field differs from the persisted snapshot, show the warning pill.
         bool isDirty = currentPath != _originalConfigPath || currentBoost != _originalSpeedBoost;
         UnsavedChangesWarning.Visibility = isDirty ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void BrowseConfig_Click(object sender, RoutedEventArgs e)
     {
+        // Let the user pick the Firebase JSON; keep the owner window consistent so dialogs stay centered.
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
             Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*",
@@ -113,6 +114,7 @@ public partial class SettingsPage : Page
 
     private void TestAnimation_Click(object sender, RoutedEventArgs e)
     {
+        // Demo the overlay in one-off "demo" mode (single playback).
         new SpeedboostOverlay().StartAnimation(isDemo: true);
     }
 
@@ -152,6 +154,7 @@ public partial class SettingsPage : Page
 
     private void Reset_Click(object sender, RoutedEventArgs e)
     {
+        // Drop the persisted overrides and repopulate defaults from disk/options.
         _userSettings.Reset();
         LoadSettings();
         ShowStatus("Reset", "User overrides cleared. Defaults restored.", InfoBarSeverity.Informational);

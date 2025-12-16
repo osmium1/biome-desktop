@@ -13,14 +13,14 @@ namespace Biome.Desktop.App.Windowing
 
         public void StartAnimation(bool isDemo)
         {
-            // Position: Bottom Right (above taskbar), flush with edges
+            // Position the overlay in the bottom-right corner, hovering above the taskbar.
             var workArea = SystemParameters.WorkArea;
             this.Left = workArea.Right - this.Width;
             this.Top = workArea.Bottom - this.Height;
 
             this.Show();
 
-            // Start Animation
+            // Kick off the storyboard; loop forever during live sends, single playback for demos.
             if (this.Resources["BoostAnimation"] is Storyboard sb)
             {
                 sb.RepeatBehavior = isDemo ? new RepeatBehavior(1) : RepeatBehavior.Forever;
@@ -39,6 +39,7 @@ namespace Biome.Desktop.App.Windowing
 
         private void Storyboard_Completed(object sender, EventArgs e)
         {
+            // Defensive close in case a single-shot animation finishes naturally.
             this.Close();
         }
     }

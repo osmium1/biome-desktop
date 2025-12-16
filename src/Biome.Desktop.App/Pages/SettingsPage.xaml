@@ -4,9 +4,14 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="Settings"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-    PreviewMouseWheel="OnRootMouseWheel">
+    ScrollViewer.CanContentScroll="False">
 
-    <Grid Margin="36, 24, 36, 24" VerticalAlignment="Stretch">
+    <Grid Margin="36, 24, 36, 24" 
+          VerticalAlignment="Stretch" 
+          Background="Transparent"
+          PreviewMouseWheel="OnPageMouseWheel"
+          MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Frame}}">
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -25,8 +30,7 @@
                   Padding="0,0,16,0"
                   Focusable="False"
                   CanContentScroll="False"
-                  Background="Transparent"
-                  PreviewMouseWheel="OnContentMouseWheel">
+                  Background="Transparent">
             <StackPanel>
                 
                 <ui:TextBlock FontTypography="BodyStrong" Text="Connectivity" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>

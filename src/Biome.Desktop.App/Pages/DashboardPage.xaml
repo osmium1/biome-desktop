@@ -6,10 +6,13 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     mc:Ignorable="d" 
     d:DesignHeight="600" d:DesignWidth="900"
-    Title="Dashboard"
-    PreviewMouseWheel="OnRootMouseWheel">
+    Title="Dashboard">
 
-    <Grid Margin="24" VerticalAlignment="Stretch">
+    <Grid Margin="24" 
+          VerticalAlignment="Stretch" 
+          Background="Transparent"
+          PreviewMouseWheel="OnPageMouseWheel">
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -27,8 +30,7 @@
                   Padding="0,0,16,0"
                   Focusable="False"
                   CanContentScroll="False"
-                  Background="Transparent"
-                  PreviewMouseWheel="OnContentMouseWheel">
+                  Background="Transparent">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*" MinWidth="300"/>

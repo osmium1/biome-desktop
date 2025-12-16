@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Biome Clipboard Payload",
+  "type": "object",
+  "required": [
+    "storagePath",
+    "kind",
+    "senderDeviceId",
+    "status",
+    "createdAt"
+  ],
+  "properties": {
+    "storagePath": {
+      "type": "string",
+      "description": "Path to the payload blob in Cloud Storage (e.g., clips/user123/guid.json)"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["text", "image", "file"],
+      "description": "Type of content in the payload"
+    },
+    "metadata": {
+      "type": "string",
+      "description": "JSON string containing content-specific metadata (e.g., source app, image size)"
+    },
+    "senderDeviceId": {
+      "type": "string",
+      "description": "ID of the device that created this clip"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["queued", "processed", "failed", "delivered"],
+      "default": "queued"
+    },
+    "bucketGeneration": {
+      "type": "string",
+      "description": "Generation ID of the Cloud Storage object for consistency checks"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the clip was created (ISO 8601)"
+    }
+  }
+}
