@@ -7,6 +7,9 @@
             <ResourceDictionary.MergedDictionaries>
                 <ui:ThemesDictionary Theme="Light" />
                 <ui:ControlsDictionary />
+                <!-- Biome Custom Theme -->
+                <ResourceDictionary Source="Themes/BiomeColors.xaml" />
+                <ResourceDictionary Source="Themes/BiomeAnimations.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
