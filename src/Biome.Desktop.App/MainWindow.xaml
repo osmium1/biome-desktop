@@ -8,34 +8,31 @@
         mc:Ignorable="d"
         Title="Biome" Height="700" Width="1100"
         WindowStartupLocation="CenterScreen"
-        WindowBackdropType="Mica"
-        ExtendsContentIntoTitleBar="True"
-        Background="{StaticResource BiomeMistyWhiteBrush}">
+        WindowBackdropType="None"
+        ExtendsContentIntoTitleBar="True">
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <!-- Sidebar column -->
-            <ColumnDefinition Width="64"/>
-            <!-- Content column -->
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    <!-- FULL WINDOW WRAPPER: Dark green background covers everything -->
+    <Border Background="#1A3D2E">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <!-- Sidebar column -->
+                <ColumnDefinition Width="72"/>
+                <!-- Content column -->
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             SIDEBAR - Forest green navigation rail
-        ═══════════════════════════════════════════════════════════════ -->
-        <Border Grid.Column="0" 
-                Background="{StaticResource BiomeSidebarGradient}"
-                CornerRadius="0,16,16,0">
-            <Grid>
+            <!-- ═══════════════════════════════════════════════════════════════
+                 SIDEBAR - Navigation icons on dark green background
+            ═══════════════════════════════════════════════════════════════ -->
+            <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="48"/> <!-- Title bar space -->
-                    <RowDefinition Height="Auto"/> <!-- Logo -->
+                    <RowDefinition Height="Auto"/> <!-- Logo at very top -->
                     <RowDefinition Height="*"/> <!-- Nav items -->
                     <RowDefinition Height="Auto"/> <!-- Footer items -->
                 </Grid.RowDefinitions>
 
-                <!-- Logo placeholder (top of sidebar) -->
-                <Border Grid.Row="1" Margin="0,16,0,24" HorizontalAlignment="Center">
+                <!-- Logo at very top left -->
+                <Border Grid.Row="0" Margin="18,16,0,0" HorizontalAlignment="Left">
                     <Grid Width="36" Height="36">
                         <!-- Simple mycelium-inspired logo: connected dots -->
                         <Canvas>
@@ -64,11 +61,11 @@
                     </Grid>
                 </Border>
 
-                <!-- Navigation Items -->
-                <StackPanel Grid.Row="2" VerticalAlignment="Top" Margin="0,8,0,0">
+                <!-- Navigation Items - Centered vertically -->
+                <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,0,0,0">
                     <Border x:Name="NavDashboard" 
-                            Width="48" Height="48" Margin="8,4"
-                            Background="Transparent" CornerRadius="8"
+                            Width="48" Height="48" Margin="12,4"
+                            Background="Transparent" CornerRadius="10"
                             Cursor="Hand"
                             ToolTip="Console"
                             MouseLeftButtonUp="OnNavDashboardClick">
@@ -77,8 +74,8 @@
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <Border x:Name="NavHistory" 
-                            Width="48" Height="48" Margin="8,4"
-                            Background="Transparent" CornerRadius="8"
+                            Width="48" Height="48" Margin="12,4"
+                            Background="Transparent" CornerRadius="10"
                             Opacity="0.5"
                             ToolTip="History (Coming Soon)">
                         <ui:SymbolIcon Symbol="History24" FontSize="22" 
@@ -88,10 +85,10 @@
                 </StackPanel>
 
                 <!-- Footer Items -->
-                <StackPanel Grid.Row="3" VerticalAlignment="Bottom" Margin="0,0,0,16">
+                <StackPanel Grid.Row="2" VerticalAlignment="Bottom" Margin="0,0,0,16">
                     <Border x:Name="NavSettings" 
-                            Width="48" Height="48" Margin="8,4"
-                            Background="Transparent" CornerRadius="8"
+                            Width="48" Height="48" Margin="12,4"
+                            Background="Transparent" CornerRadius="10"
                             Cursor="Hand"
                             ToolTip="Settings"
                             MouseLeftButtonUp="OnNavSettingsClick">
@@ -101,32 +98,54 @@
                     </Border>
                 </StackPanel>
             </Grid>
-        </Border>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             MAIN CONTENT AREA
-        ═══════════════════════════════════════════════════════════════ -->
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="48"/> <!-- Title bar drag area -->
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- Custom title bar area (for dragging) -->
-            <Border Grid.Row="0" Background="Transparent" MouseLeftButtonDown="OnTitleBarDrag">
-                <TextBlock Text="Biome" 
-                           VerticalAlignment="Center" 
-                           Margin="24,0,0,0"
-                           FontSize="13"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource BiomeTextSecondaryBrush}"/>
+            <!-- Close button - macOS style circle, golden -->
+            <Border Grid.Column="1"
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Top"
+                    Margin="0,8,16,0"
+                    Width="14" Height="14"
+                    CornerRadius="7"
+                    Background="{StaticResource BiomeSunlightBrush}"
+                    Cursor="Hand"
+                    MouseLeftButtonUp="OnCloseClick"
+                    MouseEnter="OnCloseButtonEnter"
+                    MouseLeave="OnCloseButtonLeave"
+                    x:Name="CloseButton">
+                <!-- Small X inside the circle -->
+                <TextBlock Text="×" 
+                           FontSize="11" 
+                           FontWeight="Bold"
+                           Foreground="#1A3D2E"
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"
+                           Margin="0,-2,0,0"/>
             </Border>
 
-            <!-- Page content frame -->
-            <Frame x:Name="ContentFrame" 
-                   Grid.Row="1" 
-                   NavigationUIVisibility="Hidden"
-                   Background="Transparent"/>
+            <!-- ═══════════════════════════════════════════════════════════════
+                 MAIN CONTENT AREA - White surface with rounded corners ON TOP
+            ═══════════════════════════════════════════════════════════════ -->
+            <Border Grid.Column="1" 
+                    Background="{StaticResource BiomeMistyWhiteBrush}"
+                    CornerRadius="20,0,0,0"
+                    Margin="0,28,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/> <!-- Title bar drag area -->
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Custom title bar area (for dragging) -->
+                    <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="OnTitleBarDrag"/>
+
+
+                    <!-- Page content frame -->
+                    <Frame x:Name="ContentFrame" 
+                           Grid.Row="1" 
+                           NavigationUIVisibility="Hidden"
+                           Background="Transparent"/>
+                </Grid>
+            </Border>
         </Grid>
-    </Grid>
+    </Border>
 </ui:FluentWindow>

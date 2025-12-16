@@ -94,4 +94,29 @@ public partial class MainWindow : FluentWindow
         }
         return null;
     }
+
+    private void OnCloseClick(object sender, MouseButtonEventArgs e)
+    {
+        Close();
+    }
+
+    private void OnCloseButtonEnter(object sender, System.Windows.Input.MouseEventArgs e)
+    {
+        if (sender is Border border)
+        {
+            // Slightly darker golden on hover
+            border.Background = new System.Windows.Media.SolidColorBrush(
+                System.Windows.Media.Color.FromRgb(0xD0, 0x9A, 0x3D));
+        }
+    }
+
+    private void OnCloseButtonLeave(object sender, System.Windows.Input.MouseEventArgs e)
+    {
+        if (sender is Border border)
+        {
+            // Restore original golden color (BiomeSunlight: #E8B54D)
+            border.Background = new System.Windows.Media.SolidColorBrush(
+                System.Windows.Media.Color.FromRgb(0xE8, 0xB5, 0x4D));
+        }
+    }
 }

@@ -9,7 +9,7 @@
     Title="Console"
     Background="{StaticResource BiomeMistyWhiteBrush}">
 
-    <Grid Margin="32,16,32,24">
+    <Grid Margin="32,0,32,24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
