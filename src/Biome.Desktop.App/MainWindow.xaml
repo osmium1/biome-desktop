@@ -6,61 +6,127 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:pages="clr-namespace:Biome.Desktop.App.Pages"
         mc:Ignorable="d"
-        Title="Biome Desktop" Height="700" Width="1100"
+        Title="Biome" Height="700" Width="1100"
         WindowStartupLocation="CenterScreen"
         WindowBackdropType="Mica"
-        ExtendsContentIntoTitleBar="True">
+        ExtendsContentIntoTitleBar="True"
+        Background="{StaticResource BiomeMistyWhiteBrush}">
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <!-- Sidebar column -->
+            <ColumnDefinition Width="64"/>
+            <!-- Content column -->
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <ui:TitleBar Grid.Row="0" Title="Biome Desktop" />
+        <!-- ═══════════════════════════════════════════════════════════════
+             SIDEBAR - Forest green navigation rail
+        ═══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Column="0" 
+                Background="{StaticResource BiomeSidebarGradient}"
+                CornerRadius="0,16,16,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="48"/> <!-- Title bar space -->
+                    <RowDefinition Height="Auto"/> <!-- Logo -->
+                    <RowDefinition Height="*"/> <!-- Nav items -->
+                    <RowDefinition Height="Auto"/> <!-- Footer items -->
+                </Grid.RowDefinitions>
 
-        <ui:NavigationView Grid.Row="1" x:Name="RootNavigation"
-            PaneDisplayMode="Left"
-            IsPaneOpen="False"
-            CompactPaneLength="56"
-            OpenPaneLength="56"
-            IsBackButtonVisible="Collapsed"
-            ScrollViewer.VerticalScrollBarVisibility="Disabled"
-            ScrollViewer.CanContentScroll="False">
+                <!-- Logo placeholder (top of sidebar) -->
+                <Border Grid.Row="1" Margin="0,16,0,24" HorizontalAlignment="Center">
+                    <Grid Width="36" Height="36">
+                        <!-- Simple mycelium-inspired logo: connected dots -->
+                        <Canvas>
+                            <Ellipse Canvas.Left="8" Canvas.Top="4" Width="8" Height="8" 
+                                     Fill="{StaticResource BiomeMorningDewBrush}"/>
+                            <Ellipse Canvas.Left="22" Canvas.Top="10" Width="6" Height="6" 
+                                     Fill="{StaticResource BiomeMorningDewBrush}" Opacity="0.8"/>
+                            <Ellipse Canvas.Left="4" Canvas.Top="20" Width="5" Height="5" 
+                                     Fill="{StaticResource BiomeMorningDewBrush}" Opacity="0.7"/>
+                            <Ellipse Canvas.Left="18" Canvas.Top="26" Width="7" Height="7" 
+                                     Fill="{StaticResource BiomeMorningDewBrush}"/>
+                            <!-- Connecting lines -->
+                            <Line X1="12" Y1="8" X2="25" Y2="13" 
+                                  Stroke="{StaticResource BiomeMorningDewBrush}" 
+                                  StrokeThickness="1.5" Opacity="0.5"/>
+                            <Line X1="12" Y1="8" X2="6" Y2="22" 
+                                  Stroke="{StaticResource BiomeMorningDewBrush}" 
+                                  StrokeThickness="1.5" Opacity="0.5"/>
+                            <Line X1="6" Y1="22" X2="21" Y2="29" 
+                                  Stroke="{StaticResource BiomeMorningDewBrush}" 
+                                  StrokeThickness="1.5" Opacity="0.5"/>
+                            <Line X1="25" Y1="13" X2="21" Y2="29" 
+                                  Stroke="{StaticResource BiomeMorningDewBrush}" 
+                                  StrokeThickness="1.5" Opacity="0.5"/>
+                        </Canvas>
+                    </Grid>
+                </Border>
 
-            <ui:NavigationView.Resources>
-                <Style TargetType="ToggleButton">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                    <Setter Property="IsHitTestVisible" Value="False" />
-                    <Setter Property="Width" Value="0" />
-                    <Setter Property="Height" Value="0" />
-                    <Setter Property="Opacity" Value="0" />
-                    <Setter Property="Margin" Value="0" />
-                    <Setter Property="Padding" Value="0" />
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="ToggleButton" />
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ui:NavigationView.Resources>
-            
-            <ui:NavigationView.MenuItems>
-                <ui:NavigationViewItem TargetPageType="{x:Type pages:DashboardPage}" ToolTip="Dashboard">
-                    <ui:NavigationViewItem.Icon>
-                        <ui:SymbolIcon Symbol="Home24" />
-                    </ui:NavigationViewItem.Icon>
-                </ui:NavigationViewItem>
-            </ui:NavigationView.MenuItems>
+                <!-- Navigation Items -->
+                <StackPanel Grid.Row="2" VerticalAlignment="Top" Margin="0,8,0,0">
+                    <Border x:Name="NavDashboard" 
+                            Width="48" Height="48" Margin="8,4"
+                            Background="Transparent" CornerRadius="8"
+                            Cursor="Hand"
+                            ToolTip="Console"
+                            MouseLeftButtonUp="OnNavDashboardClick">
+                        <ui:SymbolIcon Symbol="Home24" FontSize="22" 
+                                       Foreground="{StaticResource BiomeTextOnDarkBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <Border x:Name="NavHistory" 
+                            Width="48" Height="48" Margin="8,4"
+                            Background="Transparent" CornerRadius="8"
+                            Opacity="0.5"
+                            ToolTip="History (Coming Soon)">
+                        <ui:SymbolIcon Symbol="History24" FontSize="22" 
+                                       Foreground="{StaticResource BiomeTextOnDarkBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
 
-            <ui:NavigationView.FooterMenuItems>
-                <ui:NavigationViewItem TargetPageType="{x:Type pages:SettingsPage}" ToolTip="Settings">
-                    <ui:NavigationViewItem.Icon>
-                        <ui:SymbolIcon Symbol="Settings24" />
-                    </ui:NavigationViewItem.Icon>
-                </ui:NavigationViewItem>
-            </ui:NavigationView.FooterMenuItems>
+                <!-- Footer Items -->
+                <StackPanel Grid.Row="3" VerticalAlignment="Bottom" Margin="0,0,0,16">
+                    <Border x:Name="NavSettings" 
+                            Width="48" Height="48" Margin="8,4"
+                            Background="Transparent" CornerRadius="8"
+                            Cursor="Hand"
+                            ToolTip="Settings"
+                            MouseLeftButtonUp="OnNavSettingsClick">
+                        <ui:SymbolIcon Symbol="Settings24" FontSize="22" 
+                                       Foreground="{StaticResource BiomeTextOnDarkBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
 
-        </ui:NavigationView>
+        <!-- ═══════════════════════════════════════════════════════════════
+             MAIN CONTENT AREA
+        ═══════════════════════════════════════════════════════════════ -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="48"/> <!-- Title bar drag area -->
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Custom title bar area (for dragging) -->
+            <Border Grid.Row="0" Background="Transparent" MouseLeftButtonDown="OnTitleBarDrag">
+                <TextBlock Text="Biome" 
+                           VerticalAlignment="Center" 
+                           Margin="24,0,0,0"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource BiomeTextSecondaryBrush}"/>
+            </Border>
+
+            <!-- Page content frame -->
+            <Frame x:Name="ContentFrame" 
+                   Grid.Row="1" 
+                   NavigationUIVisibility="Hidden"
+                   Background="Transparent"/>
+        </Grid>
     </Grid>
 </ui:FluentWindow>

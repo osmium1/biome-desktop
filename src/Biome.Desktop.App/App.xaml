@@ -10,6 +10,7 @@
                 <!-- Biome Custom Theme -->
                 <ResourceDictionary Source="Themes/BiomeColors.xaml" />
                 <ResourceDictionary Source="Themes/BiomeAnimations.xaml" />
+                <ResourceDictionary Source="Themes/BiomeControls.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

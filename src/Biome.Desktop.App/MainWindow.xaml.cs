@@ -3,17 +3,15 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Controls.Primitives;
-using Biome.Desktop.App.Windowing;
 using Microsoft.Extensions.Logging;
 using Wpf.Ui.Controls;
-using Button = System.Windows.Controls.Button;
 
 namespace Biome.Desktop.App;
 
 public partial class MainWindow : FluentWindow
 {
     private readonly ILogger<MainWindow> _logger;
+    private Border? _activeNavItem;
 
     public MainWindow(ILogger<MainWindow> logger)
     {
@@ -21,143 +19,79 @@ public partial class MainWindow : FluentWindow
         
         InitializeComponent();
         
-        _logger.LogInformation("Main window initialized");
+        _logger.LogInformation("Main window initialized with Biome theme");
 
-        // Wire the NavigationView lifecycle so the pane stays in compact mode and always starts on the dashboard.
-        RootNavigation.Loaded += (sender, args) =>
+        // Navigate to dashboard on load and set it as active
+        Loaded += (_, _) =>
         {
-            RootNavigation.IsPaneOpen = false;
-            HidePaneToggles();
-            RootNavigation.Navigate(typeof(Pages.DashboardPage));
+            NavigateTo(typeof(Pages.DashboardPage), NavDashboard);
         };
-
-        RootNavigation.LayoutUpdated += (_, _) =>
-        {
-            // Templates in Wpf.Ui love to resurrect the toggle; keep stripping it every layout pass.
-            HidePaneToggles();
-            RootNavigation.IsPaneOpen = false;
-        };
-
-        RootNavigation.PreviewMouseDown += OnNavPreviewMouseDown;
     }
 
-    private void OnNavPreviewMouseDown(object sender, MouseButtonEventArgs e)
+    private void OnNavDashboardClick(object sender, MouseButtonEventArgs e)
     {
-        // Swallow clicks on the pane toggle to prevent expansion
-        if (e.OriginalSource is DependencyObject source)
+        NavigateTo(typeof(Pages.DashboardPage), NavDashboard);
+    }
+
+    private void OnNavSettingsClick(object sender, MouseButtonEventArgs e)
+    {
+        NavigateTo(typeof(Pages.SettingsPage), NavSettings);
+    }
+
+    private void NavigateTo(Type pageType, Border navItem)
+    {
+        // Update active item styling
+        if (_activeNavItem != null)
         {
-            var toggle = FindParent<ToggleButton>(source);
-            var buttonToggle = FindParent<Button>(source);
-
-            // Only intercept if it looks like a navigation toggle
-            bool isToggle = toggle != null && IsPaneToggleName(toggle.Name);
-            bool isButtonToggle = buttonToggle != null && IsPaneToggleName(buttonToggle.Name);
-
-            if (isToggle || isButtonToggle)
+            _activeNavItem.Background = System.Windows.Media.Brushes.Transparent;
+            var prevIcon = FindChild<SymbolIcon>(_activeNavItem);
+            if (prevIcon != null)
             {
-                // Force-close the pane and mark the event handled so the user never sees the “nub”.
-                HidePaneToggles();
-                RootNavigation.IsPaneOpen = false;
-                e.Handled = true;
+                prevIcon.Foreground = (System.Windows.Media.Brush)FindResource("BiomeTextOnDarkBrush");
             }
         }
-    }
 
-    private void HidePaneToggles()
-    {
-        // Strip any ToggleButton instances from the template so the rail behaves like a fixed icon bar.
-        foreach (var toggle in FindChildren<ToggleButton>(RootNavigation))
+        _activeNavItem = navItem;
+        navItem.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF));
+        var activeIcon = FindChild<SymbolIcon>(navItem);
+        if (activeIcon != null)
         {
-            StripToggleVisual(toggle);
+            activeIcon.Foreground = (System.Windows.Media.Brush)FindResource("BiomeSunlightBrush");
         }
 
-        // Fallback: some templates may use Button instead of ToggleButton
-        foreach (var button in FindChildren<System.Windows.Controls.Button>(RootNavigation))
+        // Navigate
+        ContentFrame.Navigate(Activator.CreateInstance(pageType));
+        _logger.LogDebug("Navigated to {PageType}", pageType.Name);
+    }
+
+    private void OnTitleBarDrag(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount == 2)
         {
-            if (IsPaneToggleName(button.Name))
-            {
-                StripButtonVisual(button);
-            }
+            WindowState = WindowState == WindowState.Maximized 
+                ? WindowState.Normal 
+                : WindowState.Maximized;
+        }
+        else
+        {
+            DragMove();
         }
     }
 
-    private static void StripToggleVisual(ToggleButton toggle)
-    {
-        toggle.Visibility = Visibility.Collapsed;
-        toggle.IsEnabled = false;
-        toggle.IsHitTestVisible = false;
-        toggle.Opacity = 0;
-        toggle.Width = 0;
-        toggle.Height = 0;
-        toggle.Margin = new Thickness(0);
-        toggle.Padding = new Thickness(0);
-        toggle.Template = new ControlTemplate(typeof(ToggleButton));
-    }
-
-    private static T? FindChild<T>(DependencyObject parent, string childName) where T : FrameworkElement
+    private static T? FindChild<T>(DependencyObject parent) where T : DependencyObject
     {
         if (parent == null) return null;
         int count = VisualTreeHelper.GetChildrenCount(parent);
         for (int i = 0; i < count; i++)
         {
             var child = VisualTreeHelper.GetChild(parent, i);
-            if (child is T typed && (string.IsNullOrEmpty(childName) || typed.Name == childName))
+            if (child is T typed)
                 return typed;
 
-            var result = FindChild<T>(child, childName);
+            var result = FindChild<T>(child);
             if (result != null)
                 return result;
         }
         return null;
     }
-
-    private static IEnumerable<T> FindChildren<T>(DependencyObject parent) where T : FrameworkElement
-    {
-        if (parent == null)
-            yield break;
-
-        int count = VisualTreeHelper.GetChildrenCount(parent);
-        for (int i = 0; i < count; i++)
-        {
-            var child = VisualTreeHelper.GetChild(parent, i);
-            if (child is T typed)
-                yield return typed;
-
-            foreach (var descendant in FindChildren<T>(child))
-                yield return descendant;
-        }
-    }
-
-    private static void StripButtonVisual(System.Windows.Controls.Button button)
-    {
-        button.Visibility = Visibility.Collapsed;
-        button.IsEnabled = false;
-        button.IsHitTestVisible = false;
-        button.Opacity = 0;
-        button.Width = 0;
-        button.Height = 0;
-        button.Margin = new Thickness(0);
-        button.Padding = new Thickness(0);
-        button.Template = new ControlTemplate(typeof(Button));
-    }
-
-    private static bool IsPaneToggleName(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name)) return false;
-        var lowered = name.ToLowerInvariant();
-        return lowered.Contains("toggle") || lowered.Contains("pane");
-    }
-
-    private static T? FindParent<T>(DependencyObject child) where T : DependencyObject
-    {
-        var current = VisualTreeHelper.GetParent(child);
-        while (current != null)
-        {
-            if (current is T typed)
-                return typed;
-            current = VisualTreeHelper.GetParent(current);
-        }
-        return null;
-    }
-
 }
