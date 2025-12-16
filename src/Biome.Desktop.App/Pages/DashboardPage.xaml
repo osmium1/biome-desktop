@@ -24,10 +24,32 @@
                        FontWeight="SemiBold"
                        Foreground="{StaticResource BiomeTextPrimaryBrush}"/>
             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                <Ellipse Width="8" Height="8" 
+                <Ellipse x:Name="StatusIndicator"
+                         Width="8" Height="8" 
                          Fill="{StaticResource BiomeSuccessBrush}" 
                          VerticalAlignment="Center"
-                         Margin="0,0,8,0"/>
+                         Margin="0,0,8,0">
+                    <Ellipse.Style>
+                        <Style TargetType="Ellipse">
+                            <Style.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                            <DoubleAnimation 
+                                                Storyboard.TargetProperty="Opacity"
+                                                From="0.5" To="1.0"
+                                                Duration="0:0:1.5">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <SineEase EasingMode="EaseInOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Ellipse.Style>
+                </Ellipse>
                 <TextBlock x:Name="StatusSubtitle"
                            Text="Your devices are synchronized" 
                            FontSize="14"
