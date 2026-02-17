@@ -1,4 +1,0 @@
-Pillow>=10.0.0
-pystray>=0.19.5
-requests>=2.31.0
-google-auth>=2.24.0

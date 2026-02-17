@@ -1,7 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <RootNamespace>Biome.Desktop.Core</RootNamespace>
-    <AssemblyName>Biome.Desktop.Core</AssemblyName>
-  </PropertyGroup>
-</Project>
