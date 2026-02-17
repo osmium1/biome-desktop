@@ -1,20 +1,20 @@
 """System tray icon with context menu and state indicators.
 
-Uses QSystemTrayIcon which is natively supported on Windows.  The tray
-owns five visual states (idle, waiting, sending, sent, error) that map
-directly to the C# TrayService states.
+Uses QSystemTrayIcon (natively supported on Windows).  The tray owns
+five visual states (idle, waiting, sending, sent, error) that map to
+coloured circle icons using theme token colours.
 """
 
 from __future__ import annotations
 
 import logging
 from enum import Enum, auto
-from pathlib import Path
-from typing import Optional
 
-from PySide6.QtCore import QObject, Signal, Slot
-from PySide6.QtGui import QAction, QColor, QIcon, QPixmap, QPainter, QFont
-from PySide6.QtWidgets import QMenu, QSystemTrayIcon, QApplication
+from PySide6.QtCore import QObject, Qt, Signal, Slot
+from PySide6.QtGui import QAction, QColor, QFont, QIcon, QPainter, QPixmap
+from PySide6.QtWidgets import QMenu, QSystemTrayIcon
+
+from ui import theme
 
 logger = logging.getLogger(__name__)
 
@@ -27,13 +27,13 @@ class TrayState(Enum):
     ERROR = auto()
 
 
-# colour for each state (used to draw fallback icons)
+# colour for each state — uses theme tokens
 _STATE_COLOURS: dict[TrayState, str] = {
-    TrayState.IDLE: "#4caf50",
-    TrayState.WAITING: "#ff9800",
-    TrayState.SENDING: "#fdd835",
-    TrayState.SENT: "#81c784",
-    TrayState.ERROR: "#ef5350",
+    TrayState.IDLE:    theme.PRIMARY,
+    TrayState.WAITING: "#ff9800",          # amber (no direct token)
+    TrayState.SENDING: "#fdd835",          # yellow
+    TrayState.SENT:    theme.ACCENT_LIGHT,
+    TrayState.ERROR:   theme.ERROR,
 }
 
 
@@ -46,15 +46,11 @@ def _make_icon(colour: str, size: int = 64) -> QIcon:
     painter.setBrush(QColor(colour))
     painter.setPen(Qt.PenStyle.NoPen)
     painter.drawEllipse(4, 4, size - 8, size - 8)
-    # draw "B" in the centre
     painter.setPen(QColor("#ffffff"))
     painter.setFont(QFont("Segoe UI", int(size * 0.35), QFont.Weight.Bold))
     painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, "B")
     painter.end()
     return QIcon(pixmap)
-
-
-from PySide6.QtCore import Qt
 
 
 class TrayService(QObject):
@@ -63,17 +59,12 @@ class TrayService(QObject):
     Signals
     -------
     state_changed(TrayState)
-        Emitted whenever the tray state changes (used by the app to
-        trigger the SpeedBoost overlay, for example).
     send_requested()
-        Emitted when the user clicks "Send Clipboard" from the menu.
     show_requested()
-        Emitted when the user activates (double-clicks) the tray icon.
     quit_requested()
-        Emitted when the user clicks "Quit" from the tray menu.
     """
 
-    state_changed = Signal(object)  # TrayState
+    state_changed = Signal(object)
     send_requested = Signal()
     show_requested = Signal()
     quit_requested = Signal()
@@ -83,26 +74,16 @@ class TrayService(QObject):
 
         self._state = TrayState.IDLE
         self._icons: dict[TrayState, QIcon] = {
-            state: _make_icon(colour) for state, colour in _STATE_COLOURS.items()
+            state: _make_icon(colour)
+            for state, colour in _STATE_COLOURS.items()
         }
 
         self._tray = QSystemTrayIcon(self._icons[TrayState.IDLE], parent)
         self._tray.setToolTip("Biome — idle")
         self._tray.activated.connect(self._on_activated)
 
-        # ── context menu ─────────────────────────────────────────────
+        # ── context menu (styled by global QSS QMenu rules) ─────────
         menu = QMenu()
-        menu.setStyleSheet("""
-            QMenu {
-                background-color: #232823;
-                color: #e0e0e0;
-                border: 1px solid #2e352e;
-                padding: 4px;
-            }
-            QMenu::item:selected {
-                background-color: #266332;
-            }
-        """)
 
         self._send_action = QAction("Send Clipboard", menu)
         self._send_action.triggered.connect(self.send_requested.emit)
@@ -143,7 +124,10 @@ class TrayService(QObject):
 
     def notify(self, title: str, message: str) -> None:
         if self._tray.supportsMessages():
-            self._tray.showMessage(title, message, QSystemTrayIcon.MessageIcon.Information, 3000)
+            self._tray.showMessage(
+                title, message,
+                QSystemTrayIcon.MessageIcon.Information, 3000,
+            )
 
     # ── private ──────────────────────────────────────────────────────
 

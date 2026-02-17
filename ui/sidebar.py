@@ -1,18 +1,17 @@
-"""Custom sidebar navigation rail (72 px wide, dark green).
+"""Navigation sidebar rail with SVG icon buttons.
 
-Mirrors the WPF NavigationView layout: logo at top, icon buttons in the
-middle, a close/quit button at the bottom.  Uses QPushButtons styled via
-QSS with the Forest Floor palette.
+A slim 64 px column housing a logo, page-navigation tool-buttons, and a
+quit button.  All styling is done via QSS pseudo-states defined in
+``theme._OVERRIDE_QSS`` — no inline ``setStyleSheet`` calls.
 """
 
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal, QSize
-from PySide6.QtGui import QIcon, QPixmap, QPainter, QColor, QFont
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QFrame,
-    QHBoxLayout,
-    QPushButton,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -20,67 +19,38 @@ from PySide6.QtWidgets import (
 from . import theme
 
 
-# ── Icon helpers (text-drawn fallbacks when no image files) ──────────
-
-def _text_icon(letter: str, size: int = 32, colour: str = "#ffffff") -> QIcon:
-    """Create a simple icon with a single centred letter."""
-    pixmap = QPixmap(size, size)
-    pixmap.fill(QColor("transparent"))
-    painter = QPainter(pixmap)
-    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-    painter.setPen(QColor(colour))
-    painter.setFont(QFont("Segoe UI", int(size * 0.45), QFont.Weight.DemiBold))
-    painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, letter)
-    painter.end()
-    return QIcon(pixmap)
-
-
 # ── NavButton ────────────────────────────────────────────────────────
 
-class NavButton(QPushButton):
-    """A single sidebar navigation button with active-state styling."""
+class NavButton(QToolButton):
+    """Checkable navigation button styled entirely through QSS."""
 
-    def __init__(self, icon: QIcon, tooltip: str, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        icon_name: str,
+        tooltip: str,
+        parent: QWidget | None = None,
+    ) -> None:
         super().__init__(parent)
-        self.setIcon(icon)
-        self.setIconSize(QSize(24, 24))
+        self.setObjectName("nav_btn")
+        self.setIcon(QIcon(theme.icon_path(icon_name)))
+        self.setIconSize(QSize(22, 22))
         self.setToolTip(tooltip)
-        self.setFixedSize(48, 48)
+        self.setFixedSize(44, 44)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setCheckable(True)
-        self._apply_style(active=False)
-
-    def set_active(self, active: bool) -> None:
-        self.setChecked(active)
-        self._apply_style(active)
-
-    def _apply_style(self, active: bool) -> None:
-        bg = theme.SIDEBAR_ACTIVE if active else "transparent"
-        hover = theme.SIDEBAR_HOVER
-        self.setStyleSheet(f"""
-            QPushButton {{
-                background: {bg};
-                border: none;
-                border-radius: 8px;
-            }}
-            QPushButton:hover {{
-                background: {hover};
-            }}
-        """)
 
 
 # ── Sidebar ──────────────────────────────────────────────────────────
 
 class Sidebar(QFrame):
-    """72 px vertical navigation rail.
+    """64 px vertical navigation rail.
 
     Signals
     -------
     page_requested(int)
-        Emitted when a nav button is clicked.  The int is the page index
-        (0 = Dashboard, 1 = Settings, …).
+        Page index the user wants to switch to.
     quit_requested()
-        Emitted when the bottom close/quit button is clicked.
+        User clicked the quit / close button.
     """
 
     page_requested = Signal(int)
@@ -88,60 +58,51 @@ class Sidebar(QFrame):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.setFixedWidth(72)
-        self.setStyleSheet(f"background-color: {theme.SIDEBAR_BG};")
+        self.setObjectName("sidebar")
+        self.setFixedWidth(64)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 12, 0, 12)
-        layout.setSpacing(4)
+        layout.setSpacing(6)
         layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
-        # ── logo placeholder ──
-        self._logo = QPushButton(self)
+        # ── logo ─────────────────────────────────────────────────────
+        self._logo = QToolButton(self)
+        self._logo.setObjectName("nav_btn")
+        self._logo.setIcon(QIcon(theme.icon_path("send")))
+        self._logo.setIconSize(QSize(28, 28))
         self._logo.setFixedSize(44, 44)
-        self._logo.setIcon(_text_icon("B", 44, theme.ACCENT))
-        self._logo.setIconSize(QSize(36, 36))
-        self._logo.setStyleSheet("QPushButton { background: transparent; border: none; }")
         self._logo.setToolTip("Biome")
+        self._logo.setCheckable(False)
         layout.addWidget(self._logo, alignment=Qt.AlignmentFlag.AlignHCenter)
 
-        layout.addSpacing(20)
+        layout.addSpacing(16)
 
-        # ── navigation buttons ──
+        # ── navigation buttons ───────────────────────────────────────
         self._buttons: list[NavButton] = []
         nav_items = [
-            (_text_icon("⌂", 32), "Dashboard"),
-            (_text_icon("⚙", 32), "Settings"),
+            ("dashboard", "Dashboard"),
+            ("settings",  "Settings"),
         ]
-        for icon, tooltip in nav_items:
-            btn = NavButton(icon, tooltip, self)
+        for icon_name, tooltip in nav_items:
+            btn = NavButton(icon_name, tooltip, self)
             self._buttons.append(btn)
             layout.addWidget(btn, alignment=Qt.AlignmentFlag.AlignHCenter)
 
-        # wire click → page index
         for idx, btn in enumerate(self._buttons):
             btn.clicked.connect(lambda checked, i=idx: self._on_nav_click(i))
 
-        # ── spacer ──
+        # ── spacer ───────────────────────────────────────────────────
         layout.addStretch()
 
-        # ── quit button ──
-        self._quit_btn = QPushButton(self)
-        self._quit_btn.setIcon(_text_icon("✕", 32, theme.TEXT_SECONDARY))
-        self._quit_btn.setIconSize(QSize(20, 20))
-        self._quit_btn.setFixedSize(40, 40)
+        # ── quit button ──────────────────────────────────────────────
+        self._quit_btn = QToolButton(self)
+        self._quit_btn.setObjectName("nav_btn")
+        self._quit_btn.setIcon(QIcon(theme.icon_path("close")))
+        self._quit_btn.setIconSize(QSize(18, 18))
+        self._quit_btn.setFixedSize(36, 36)
         self._quit_btn.setToolTip("Quit Biome")
         self._quit_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._quit_btn.setStyleSheet(f"""
-            QPushButton {{
-                background: transparent;
-                border: none;
-                border-radius: 8px;
-            }}
-            QPushButton:hover {{
-                background: {theme.ERROR};
-            }}
-        """)
         self._quit_btn.clicked.connect(self.quit_requested.emit)
         layout.addWidget(self._quit_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
 
@@ -152,7 +113,7 @@ class Sidebar(QFrame):
 
     def select_page(self, index: int) -> None:
         for i, btn in enumerate(self._buttons):
-            btn.set_active(i == index)
+            btn.setChecked(i == index)
 
     # ── private ──────────────────────────────────────────────────────
 

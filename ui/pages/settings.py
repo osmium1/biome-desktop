@@ -1,12 +1,12 @@
 """Settings page — user / device configuration.
 
 Layout:
-  • Fixed header (page title)
-  • Scrollable body with cards:
-      – Connectivity (device ID, API base URL)
-      – Behaviour (auto-send text, auto-send URLs, SpeedBoost overlay)
-      – System status (config path, outbox count)
-  • Pinned footer with Save / Reset buttons
+  - Fixed header (page title)
+  - Scrollable body with QGroupBox cards:
+      – Connectivity (device ID, API base URL, Firebase config)
+      – Behaviour (auto-send toggles, SpeedBoost option)
+      – System Status (config path, outbox count, test button)
+  - Pinned footer with Save / Reset buttons
 """
 
 from __future__ import annotations
@@ -18,7 +18,8 @@ from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import (
     QCheckBox,
     QFileDialog,
-    QFrame,
+    QFormLayout,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -34,33 +35,13 @@ from .. import theme
 logger = logging.getLogger(__name__)
 
 
-def _card(parent: QWidget | None = None) -> QFrame:
-    frame = QFrame(parent)
-    frame.setFrameShape(QFrame.Shape.Box)
-    frame.setStyleSheet(f"""
-        QFrame {{
-            background-color: {theme.SURFACE};
-            border: 1px solid {theme.BORDER};
-            border-radius: 8px;
-        }}
-    """)
-    return frame
-
-
-def _separator() -> QFrame:
-    line = QFrame()
-    line.setFrameShape(QFrame.Shape.HLine)
-    line.setStyleSheet(f"color: {theme.BORDER};")
-    return line
-
-
 class SettingsPage(QWidget):
     """Settings UI with save / reset / dirty tracking."""
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
 
-        self._settings_store = None  # injected later
+        self._settings_store = None
         self._dirty = False
 
         root = QVBoxLayout(self)
@@ -80,7 +61,7 @@ class SettingsPage(QWidget):
         # ── scrollable body ──────────────────────────────────────────
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        scroll.setFrameShape(QScrollArea.Shape.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         body = QWidget()
@@ -89,45 +70,40 @@ class SettingsPage(QWidget):
         body_lay.setSpacing(16)
 
         # ── Connectivity card ────────────────────────────────────────
-        conn_card = _card(body)
-        cc = QVBoxLayout(conn_card)
-        cc.setContentsMargins(20, 16, 20, 16)
+        conn_card = QGroupBox("Connectivity")
+        cc = QFormLayout(conn_card)
         cc.setSpacing(10)
-        cc.addWidget(QLabel("Connectivity"))
+        cc.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
 
-        cc.addWidget(QLabel("Device ID"))
         self._device_id = QLineEdit()
         self._device_id.setPlaceholderText("auto-detected from hostname")
         self._device_id.textChanged.connect(self._mark_dirty)
-        cc.addWidget(self._device_id)
+        cc.addRow("Device ID", self._device_id)
 
-        cc.addWidget(QLabel("API Base URL"))
         self._api_url = QLineEdit()
         self._api_url.setPlaceholderText("http://localhost:8000")
         self._api_url.textChanged.connect(self._mark_dirty)
-        cc.addWidget(self._api_url)
+        cc.addRow("API Base URL", self._api_url)
 
-        cc.addWidget(QLabel("Firebase Config Path"))
         fb_row = QHBoxLayout()
         self._firebase_path = QLineEdit()
         self._firebase_path.setPlaceholderText("~/.biome/firebase.json")
         self._firebase_path.textChanged.connect(self._mark_dirty)
         fb_row.addWidget(self._firebase_path)
-        browse_btn = QPushButton("Browse…")
+        browse_btn = QPushButton("  Browse…  ")
         browse_btn.setProperty("class", "secondary")
-        browse_btn.setFixedWidth(90)
+        browse_btn.setMinimumWidth(100)
+        browse_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         browse_btn.clicked.connect(self._on_browse)
         fb_row.addWidget(browse_btn)
-        cc.addLayout(fb_row)
+        cc.addRow("Firebase Config", fb_row)
 
         body_lay.addWidget(conn_card)
 
         # ── Behaviour card ───────────────────────────────────────────
-        beh_card = _card(body)
+        beh_card = QGroupBox("Behaviour")
         bc = QVBoxLayout(beh_card)
-        bc.setContentsMargins(20, 16, 20, 16)
         bc.setSpacing(10)
-        bc.addWidget(QLabel("Behaviour"))
 
         self._auto_text = QCheckBox("Auto-send plain text")
         self._auto_text.toggled.connect(self._mark_dirty)
@@ -144,22 +120,21 @@ class SettingsPage(QWidget):
         body_lay.addWidget(beh_card)
 
         # ── System card ──────────────────────────────────────────────
-        sys_card = _card(body)
+        sys_card = QGroupBox("System Status")
         sc = QVBoxLayout(sys_card)
-        sc.setContentsMargins(20, 16, 20, 16)
         sc.setSpacing(10)
-        sc.addWidget(QLabel("System Status"))
 
         self._config_path_label = QLabel(f"Config: {Path.home() / '.biome'}")
-        self._config_path_label.setStyleSheet(f"color: {theme.TEXT_SECONDARY}; font-size: 12px;")
+        self._config_path_label.setProperty("class", "card-value")
         sc.addWidget(self._config_path_label)
 
         self._outbox_label = QLabel("Outbox: 0 pending items")
-        self._outbox_label.setStyleSheet(f"color: {theme.TEXT_SECONDARY}; font-size: 12px;")
+        self._outbox_label.setProperty("class", "card-value")
         sc.addWidget(self._outbox_label)
 
         test_btn = QPushButton("Test Connection")
         test_btn.setProperty("class", "secondary")
+        test_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         test_btn.clicked.connect(self._on_test)
         sc.addWidget(test_btn)
 
@@ -170,27 +145,32 @@ class SettingsPage(QWidget):
         root.addWidget(scroll, stretch=1)
 
         # ── footer ───────────────────────────────────────────────────
-        root.addSpacing(12)
-        footer = QHBoxLayout()
+        footer_widget = QWidget()
+        footer_widget.setObjectName("footer_bar")
+        footer_widget.setFixedHeight(56)
+        footer = QHBoxLayout(footer_widget)
+        footer.setContentsMargins(24, 8, 24, 8)
         footer.addStretch()
 
         self._reset_btn = QPushButton("Reset")
         self._reset_btn.setProperty("class", "secondary")
         self._reset_btn.setFixedWidth(100)
+        self._reset_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._reset_btn.clicked.connect(self._on_reset)
         footer.addWidget(self._reset_btn)
 
         self._save_btn = QPushButton("Save")
+        self._save_btn.setProperty("class", "primary")
         self._save_btn.setFixedWidth(100)
+        self._save_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._save_btn.clicked.connect(self._on_save)
         footer.addWidget(self._save_btn)
 
-        root.addLayout(footer)
+        root.addWidget(footer_widget)
 
     # ── public API ───────────────────────────────────────────────────
 
-    def set_settings_store(self, store) -> None:  # type: ignore[override]
-        """Inject the settings store and populate fields."""
+    def set_settings_store(self, store) -> None:
         self._settings_store = store
         self._load_from_store()
 
@@ -201,7 +181,6 @@ class SettingsPage(QWidget):
             return
         s = self._settings_store
 
-        # block signals to avoid marking dirty during load
         for w in (self._device_id, self._api_url, self._firebase_path,
                   self._auto_text, self._auto_urls, self._speedboost):
             w.blockSignals(True)
@@ -265,7 +244,6 @@ class SettingsPage(QWidget):
 
     @Slot()
     def _on_test(self) -> None:
-        """Quick health-check against the configured backend."""
         if self._api_client is None:
             logger.warning("No API client to test.")
             return

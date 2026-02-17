@@ -1,8 +1,11 @@
 """SpeedBoost overlay — transparent topmost animation.
 
-Shows a column of green chevrons that animate sequentially during
-clipboard dispatch, similar to the WPF SpeedboostOverlay.  The window
-is frameless, transparent, always-on-top, and click-through.
+Shows a column of teal chevrons that animate sequentially during
+clipboard dispatch.  The window is frameless, transparent, always-on-top,
+and click-through.
+
+Performance fix: chevrons use ``QGraphicsOpacityEffect`` instead of
+rebuilding QSS every frame.
 """
 
 from __future__ import annotations
@@ -13,10 +16,14 @@ from PySide6.QtCore import (
     QPropertyAnimation,
     QSequentialAnimationGroup,
     Qt,
-    QTimer,
 )
 from PySide6.QtGui import QColor, QFont, QPainter
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QGraphicsOpacityEffect,
+    QLabel,
+    QVBoxLayout,
+    QWidget,
+)
 
 from . import theme
 
@@ -25,29 +32,27 @@ CHEVRON_CHAR = "❯"
 
 
 class _Chevron(QLabel):
-    """Single animated chevron with opacity support."""
+    """Single animated chevron using a QGraphicsOpacityEffect."""
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(CHEVRON_CHAR, parent)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
-        self._opacity = 0.15
-        self._update_colour()
+        self.setStyleSheet(f"color: {theme.PRIMARY}; background: transparent;")
+
+        self._effect = QGraphicsOpacityEffect(self)
+        self._effect.setOpacity(0.15)
+        self.setGraphicsEffect(self._effect)
 
     # ── animated property ────────────────────────────────────────────
 
     def get_opacity(self) -> float:
-        return self._opacity
+        return self._effect.opacity()
 
     def set_opacity(self, value: float) -> None:
-        self._opacity = value
-        self._update_colour()
+        self._effect.setOpacity(value)
 
     opacity = Property(float, get_opacity, set_opacity)
-
-    def _update_colour(self) -> None:
-        alpha = max(0, min(255, int(self._opacity * 255)))
-        self.setStyleSheet(f"color: rgba(76, 175, 80, {alpha}); background: transparent;")
 
 
 class SpeedBoostOverlay(QWidget):
@@ -60,7 +65,6 @@ class SpeedBoostOverlay(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
 
-        # frameless, transparent, topmost, click-through
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint
             | Qt.WindowType.WindowStaysOnTopHint
@@ -68,7 +72,6 @@ class SpeedBoostOverlay(QWidget):
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
-        # Windows: pass mouse clicks through
         self.setWindowFlag(Qt.WindowType.WindowTransparentForInput, True)
 
         self.setFixedSize(60, CHEVRON_COUNT * 48 + 20)
@@ -89,14 +92,12 @@ class SpeedBoostOverlay(QWidget):
     # ── public ───────────────────────────────────────────────────────
 
     def start(self, *, demo: bool = False) -> None:
-        """Show the overlay and begin the chevron cascade."""
         self._demo = demo
         self._position_bottom_right()
         self.show()
         self._animate()
 
     def stop(self) -> None:
-        """Stop animation and hide."""
         if self._group:
             self._group.stop()
             self._group = None
@@ -128,7 +129,6 @@ class SpeedBoostOverlay(QWidget):
             anim.setEasingCurve(QEasingCurve.Type.InOutQuad)
             self._group.addAnimation(anim)
 
-        # fade all back down
         for chev in reversed(self._chevrons):
             anim = QPropertyAnimation(chev, b"opacity")
             anim.setDuration(200)
