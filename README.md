@@ -48,13 +48,11 @@ local outbox spooling).
 
 | Feature              | Status  |
 |----------------------|---------|
-| Dark "Forest Floor" theme | ✅ |
 | Custom sidebar nav   | ✅      |
 | Dashboard console    | ✅      |
 | Settings page        | ✅      |
-| System tray (5 states) | ✅   |
+| System tray          | ✅      |
 | Clipboard watcher    | ✅      |
-| SpeedBoost overlay   | ✅      |
 | Backend health check | ✅      |
 | Clip ingest API      | ✅      |
 | Firebase transport   | ✅      |
