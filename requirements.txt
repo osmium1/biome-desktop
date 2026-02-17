@@ -1,0 +1,5 @@
+# Biome Desktop Client
+PySide6>=6.7.0
+httpx>=0.27.0
+qasync>=0.27.1
+Pillow>=10.0.0

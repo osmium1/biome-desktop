@@ -1,64 +1,72 @@
-# Biome Desktop
+# Biome
 
-**Biome** is a next-generation clipboard sharing tool that seamlessly syncs text and images across your devices. Currently in active transition from a Python prototype to a native Windows experience built with **.NET 10** and **WinUI 3/WPF**.
+Cross-device clipboard sharing platform, migrated from a native Windows (.NET/WPF) stack to Python for faster iteration.
 
-> [!NOTE]
-> This repository contains the source for the **Biome Desktop** client. The mobile companion is developed separately.
+Desktop client (PySide6) sends clipboard content through a FastAPI
+backend that persists to Firebase (Cloud Storage + Firestore) and pushes
+FCM notifications to linked devices.
 
-## 🏗️ Technical Stack
-
-- **Framework**: .NET 10
-- **UI**: WPF with Fluent Design & Mica (via [WPF UI](https://wpfui.lepo.co/))
-- **Cloud Transport**: Google Firebase (Firestore + Storage + FCM)
-- **Architecture**: Host-based DI, local message dispatch queue, background services
-
-## 📂 Repository Structure
+## Repo layout
 
 ```
-biome-desktop/
-├── src/
-│   ├── Biome.Desktop.App/       # The main WPF shell application
-│   └── Biome.Desktop.Core/      # Shared domain models and interfaces
-├── schemas/                     # Shared JSON contracts (used by mobile apps)
-├── infra/                       # Cloud configuration (Firebase rules)
-└── archive/                     # Reference code from the legacy Python prototype
+api/                    # httpx async client for the backend
+clipboard/              # QClipboard watcher
+payloads/               # Clipboard classifier
+settings/               # JSON persistence (~/.biome/)
+tray/                   # QSystemTrayIcon service
+ui/                     # Main window, sidebar, pages, overlay, theme
+app.py                  # Composition root — wires all services
+main.py                 # Entry point: python main.py
+schemas/                # Payload JSON schemas
 ```
 
-## 🚀 Getting Started
+## Quick start
 
-### Prerequisites
-- **.NET 10 SDK** (or latest .NET 8/9 if 10 is not yet public preview)
-- **Visual Studio 2022** (v17.14+) with "Desktop development" workload
-- **Windows App SDK** runtime 1.8+ (for unpackaged apps)
-
-### Build & Run
-1. Clone the repository.
-2. Restore dependencies:
-   ```powershell
-   dotnet restore Biome.Desktop.sln
-   ```
-3. Run the desktop app:
-   ```powershell
-   dotnet run --project src/Biome.Desktop.App
-   ```
-
-## ⚙️ Configuration
-
-The app uses `appsettings.json` for configuration. For local development, create a user-specific config at `%USERPROFILE%/.biome/appsettings.user.json`:
-
-```json
-{
-  "Biome": {
-    "Firebase": {
-      "ProjectId": "your-project-id",
-      "ServiceAccountPath": "C:\\path\\to\\service-account.json"
-    }
-  }
-}
+```bash
+pip install -r requirements.txt
+python main.py
 ```
 
-## 🕰️ Legacy Reference
-The original Python implementation is preserved in `archive/python-desktop/` for reference. It contains the logic being ported to C#.
+Requires Python 3.11+ and a running backend (or it operates offline with
+local outbox spooling).
 
-## 📄 License
-MIT License. See [LICENSE](LICENSE) for details.
+## Architecture
+
+```
+┌──────────────┐    POST /api/clips    ┌──────────────┐
+│  Desktop App │ ───────────────────►  │  FastAPI      │
+│  (PySide6)   │                       │  Backend      │
+└──────────────┘                       └──────┬───────┘
+                                              │
+                               ┌──────────────┼──────────────┐
+                               ▼              ▼              ▼
+                        Cloud Storage    Firestore     FCM Push
+                        (payload blob)   (clip doc)    (notify)
+```
+
+## Features
+
+| Feature              | Status  |
+|----------------------|---------|
+| Dark "Forest Floor" theme | ✅ |
+| Custom sidebar nav   | ✅      |
+| Dashboard console    | ✅      |
+| Settings page        | ✅      |
+| System tray (5 states) | ✅   |
+| Clipboard watcher    | ✅      |
+| SpeedBoost overlay   | ✅      |
+| Backend health check | ✅      |
+| Clip ingest API      | ✅      |
+| Firebase transport   | ✅      |
+| Outbox fallback      | ✅      |
+| Auto-send rules      | ✅      |
+
+## Tech stack
+
+| Layer    | Technology                        |
+|----------|-----------------------------------|
+| Desktop  | Python 3.12, PySide6, qasync, httpx |
+| Backend  | FastAPI, Uvicorn, Pydantic        |
+| Infra    | GCP Cloud Run, Cloud Storage, Firestore, FCM |
+| IaC      | Terraform (planned)               |
+| CI/CD    | GitHub Actions (planned)          |
