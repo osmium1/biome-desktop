@@ -1,49 +1,44 @@
-# Visual Studio / .NET
+# ── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+.env
+pip-log.txt
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── VS Code ────────────────────────────────────────────────
+.vscode/
+
+# ── Visual Studio / .NET (legacy) ──────────────────────────
 .vs/
 bin/
 obj/
 *.user
+*.suo
 *.userosscache
 *.sln.docstates
-*.suo
 *.userprefs
-*.launch
-*.hidden
-project.lock.json
-project.fragment.lock.json
 artifacts/
-config/
-var/
-_build/
 
-# VS Code
-.vscode/
-
-# User-specific files
-*.rsuser
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-*.userprefs
-*.mono
-*.mc
-*.releasebackup
-*.csproj.user
-
-# Biome Specific
+# ── Biome Specific ─────────────────────────────────────────
 ip_address.txt
 test.py
 firebase.json
 *.firebase-adminsdk-*.json
 .biome/
+docs/
 
-# Archive / Python (Legacy)
+# ── Archive ────────────────────────────────────────────────
 archive/**/__pycache__/
 archive/**/*.pyc
-archive/**/*.pyo
-archive/**/*.pyd
 archive/**/.env
 archive/**/.venv/
-archive/**/pip-log.txt
-archive/**/.pytest_cache/

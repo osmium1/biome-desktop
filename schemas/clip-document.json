@@ -16,7 +16,7 @@
     },
     "kind": {
       "type": "string",
-      "enum": ["text", "image", "file"],
+      "enum": ["text", "url", "image", "file"],
       "description": "Type of content in the payload"
     },
     "metadata": {
